@@ -1,33 +1,44 @@
 package ru.practicum.shareit.user.service;
 
-import ru.practicum.shareit.user.model.User;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
+import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.mapper.UserMapper;
+import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
-public class UserServiceImpl implements UserService{
+@Service
+@AllArgsConstructor
+public class UserServiceImpl implements UserService {
+    UserRepository repository;
 
     @Override
-    public List<User> getAllUsers() {
-        return null;
+    public List<UserDto> getAllUsers() {
+        return repository.getAllUsers()
+                .stream()
+                .map(UserMapper::toUserDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public User getUserById(long id) {
-        return null;
+    public UserDto getUserById(long id) {
+        return UserMapper.toUserDTO(repository.getUserById(id));
     }
 
     @Override
-    public User createUser(User user) {
-        return null;
+    public UserDto createUser(UserDto user) {
+        return UserMapper.toUserDTO(repository.createUser(UserMapper.toUser(user)));
     }
 
     @Override
-    public User updateUser(long id, User updatedUser) {
-        return null;
+    public UserDto updateUser(long id, UserDto user) {
+        return UserMapper.toUserDTO(repository.updateUser(id, UserMapper.toUser(user)));
     }
 
     @Override
     public void deleteUser(long id) {
-
+        repository.deleteUser(id);
     }
 }

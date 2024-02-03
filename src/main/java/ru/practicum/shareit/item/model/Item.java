@@ -10,10 +10,10 @@ import ru.practicum.shareit.user.model.User;
 @Data
 @Builder
 public class Item {
-    private int id;
+    private long id;
     private User owner;
     private String description;
     private String name;
-    private boolean availability;
+    private Boolean available;
 
 }

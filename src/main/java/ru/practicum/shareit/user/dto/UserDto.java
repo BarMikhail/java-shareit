@@ -12,7 +12,9 @@ public class UserDto {
     private long id;
     @NotBlank
     private String name;
-    @Email
-    @NotBlank
+
+    @Email(message = "Где почта?!")
+    @NotBlank(message = "Что-то пошло не так")
+
     private String email;
 }

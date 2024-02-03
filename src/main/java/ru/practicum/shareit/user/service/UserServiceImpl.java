@@ -2,12 +2,14 @@ package ru.practicum.shareit.user.service;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
+import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -16,15 +18,24 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserDto> getAllUsers() {
-        return repository.getAllUsers()
-                .stream()
-                .map(UserMapper::toUserDTO)
-                .collect(Collectors.toList());
+        List<User> users = repository.getAllUsers();
+        List<UserDto> userDtos = new ArrayList<>();
+
+        for (User user : users) {
+            UserDto userDto = UserMapper.toUserDTO(user);
+            userDtos.add(userDto);
+        }
+
+        return userDtos;
     }
 
     @Override
     public UserDto getUserById(long id) {
-        return UserMapper.toUserDTO(repository.getUserById(id));
+        User user = repository.getUserById(id);
+        if (user == null) {
+            throw new NotFoundException("Нет такого пользователя");
+        }
+        return UserMapper.toUserDTO(user);
     }
 
     @Override

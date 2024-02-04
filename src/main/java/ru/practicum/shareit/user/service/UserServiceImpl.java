@@ -14,7 +14,7 @@ import java.util.List;
 @Service
 @AllArgsConstructor
 public class UserServiceImpl implements UserService {
-    UserRepository repository;
+    private final UserRepository repository;
 
     @Override
     public List<UserDto> getAllUsers() {
@@ -31,10 +31,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto getUserById(long id) {
-        User user = repository.getUserById(id);
-        if (user == null) {
-            throw new NotFoundException("Нет такого пользователя");
-        }
+        User user = repository.getUserById(id).orElseThrow(() -> new NotFoundException("Нет такого пользователя"));
         return UserMapper.toUserDTO(user);
     }
 

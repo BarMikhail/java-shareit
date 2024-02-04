@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @Repository
@@ -23,17 +24,13 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public User getUserById(long id) {
-        return userMap.get(id);
+    public Optional<User> getUserById(long id) {
+        return Optional.ofNullable(userMap.get(id));
     }
 
     @Override
     public User createUser(User user) {
-        for (User userCheck : getAllUsers()) {
-            if (userCheck.getEmail().equals(user.getEmail()) && userCheck.getId() != id) {
-                throw new ExistEmailException("Почта уже существует");
-            }
-        }
+        check(user, id);
         user.setId(generateUserId());
         userMap.put(user.getId(), user);
         return user;
@@ -41,17 +38,13 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public User updateUser(long id, User user) {
-        User newUser = getUserById(id);
-        if (user.getName() != null) {
+        User newUser = userMap.get(id);
+        if (user.getName() != null && !user.getName().isBlank()) {
             newUser.setName(user.getName());
         }
 
-        if (user.getEmail() != null) {
-            for (User userCheck : getAllUsers()) {
-                if (userCheck.getEmail().equals(user.getEmail()) && userCheck.getId() != id) {
-                    throw new ExistEmailException("Почта уже существует");
-                }
-            }
+        if (user.getEmail() != null && !user.getEmail().isBlank()) {
+            check(user, id);
             newUser.setEmail(user.getEmail());
         }
 
@@ -65,5 +58,14 @@ public class UserRepositoryImpl implements UserRepository {
 
     private long generateUserId() {
         return id++;
+    }
+
+    private void check(User user, long id) {
+        for (User userCheck : getAllUsers()) {
+            if (userCheck.getEmail().equals(user.getEmail())
+                    && userCheck.getId() != id) {
+                throw new ExistEmailException("Почта уже существует");
+            }
+        }
     }
 }

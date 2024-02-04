@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Repository
 public class ItemRepositoryImpl implements ItemRepository {
@@ -21,11 +22,7 @@ public class ItemRepositoryImpl implements ItemRepository {
         dataItem.put(item.getId(), item);
 
         long userId = item.getOwner().getId();
-
-        if (!itemsByUser.containsKey(userId)) {
-            itemsByUser.put(userId, new ArrayList<>());
-        }
-        itemsByUser.get(userId).add(item);
+        itemsByUser.computeIfAbsent(userId, k -> new ArrayList<>()).add(item);
         return item;
     }
 
@@ -38,8 +35,8 @@ public class ItemRepositoryImpl implements ItemRepository {
     }
 
     @Override
-    public Item getItemById(long itemId) {
-        return dataItem.get(itemId);
+    public Optional<Item> getItemById(long itemId) {
+        return Optional.ofNullable(dataItem.get(itemId));
     }
 
     @Override
@@ -50,10 +47,11 @@ public class ItemRepositoryImpl implements ItemRepository {
     @Override
     public List<Item> findBySearch(String searchText) {
         List<Item> matchingItems = new ArrayList<>();
+        String lowerCaseSearchText = searchText.toLowerCase();
 
         for (Item item : dataItem.values()) {
-            if (item.getAvailable().equals(true) && (item.getDescription().toLowerCase().contains(searchText.toLowerCase())
-                    || item.getName().toLowerCase().contains(searchText.toLowerCase()))) {
+            if (item.getAvailable().equals(true) && (item.getDescription().toLowerCase().contains(lowerCaseSearchText)
+                    || item.getName().toLowerCase().contains(lowerCaseSearchText))) {
                 matchingItems.add(item);
             }
         }

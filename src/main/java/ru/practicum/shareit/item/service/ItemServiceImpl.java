@@ -14,6 +14,7 @@ import ru.practicum.shareit.user.repository.UserRepository;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -24,10 +25,8 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto addItem(long userId, ItemDto itemDto) {
-        User user = userRepository.getUserById(userId);
-        if (user == null) {
-            throw new NotFoundException("Нет такого пользователя");
-        }
+        User user = userRepository.getUserById(userId)
+                .orElseThrow(() -> new NotFoundException("Нет такого пользователя"));
         Item item = ItemMapper.toItem(itemDto);
         item.setOwner(user);
         return ItemMapper.toItemDTO(itemRepository.addItem(item));
@@ -35,37 +34,29 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto updateItem(long itemId, ItemDto itemDto, long userId) {
-        Item item = itemRepository.getItemById(itemId);
-
-        if (item == null) {
-            throw new NotFoundException("Нет такой вещи");
-        }
+        Item item = itemRepository.getItemById(itemId)
+                .orElseThrow(() -> new NotFoundException("Нет такой вещи"));
 
         if (userId != item.getOwner().getId()) {
             throw new NotFoundException("Не тот владелец");
         }
 
-        if (StringUtils.hasLength(itemDto.getName())) {
+        if (StringUtils.hasText(itemDto.getName())) {
             item.setName(itemDto.getName());
         }
-        if (StringUtils.hasLength(itemDto.getDescription())) {
+        if (StringUtils.hasText(itemDto.getDescription())) {
             item.setDescription(itemDto.getDescription());
         }
 
         if (itemDto.getAvailable() != null) {
             item.setAvailable(itemDto.getAvailable());
         }
-
-        itemRepository.updateItem(item, itemId);
         return ItemMapper.toItemDTO(item);
     }
 
     @Override
     public ItemDto getItemById(long itemId) {
-        Item item = itemRepository.getItemById(itemId);
-        if (item == null) {
-            throw new NotFoundException("Нет такой вещи");
-        }
+        Item item = itemRepository.getItemById(itemId).orElseThrow(() -> new NotFoundException("Нет такой вещи"));
         return ItemMapper.toItemDTO(item);
     }
 
@@ -84,18 +75,13 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> searchItems(String searchText) {
-        if (!StringUtils.hasLength(searchText)) {
+        if (!StringUtils.hasText(searchText)) {
             return Collections.emptyList();
         }
 
         List<Item> items = itemRepository.findBySearch(searchText);
-        List<ItemDto> itemDtos = new ArrayList<>();
-
-        for (Item item : items) {
-            ItemDto itemDto = ItemMapper.toItemDTO(item);
-            itemDtos.add(itemDto);
-        }
-
-        return itemDtos;
+        return items.stream()
+                .map(ItemMapper::toItemDTO)
+                .collect(Collectors.toList());
     }
 }

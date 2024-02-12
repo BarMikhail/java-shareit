@@ -27,21 +27,13 @@ public class ItemRepositoryImpl implements ItemRepository {
     }
 
     @Override
-    public void updateItem(Item item, long itemId) {
-        dataItem.put(itemId, item);
-        long userId = item.getOwner().getId();
-        itemsByUser.get(userId).remove(item);
-        itemsByUser.get(userId).add(item);
-    }
-
-    @Override
     public Optional<Item> getItemById(long itemId) {
         return Optional.ofNullable(dataItem.get(itemId));
     }
 
     @Override
     public List<Item> findByUserId(long userId) {
-        return itemsByUser.get(userId);
+        return itemsByUser.getOrDefault(userId,List.of());
     }
 
     @Override

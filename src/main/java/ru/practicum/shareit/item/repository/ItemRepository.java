@@ -10,8 +10,6 @@ public interface ItemRepository {
 
     Optional<Item> getItemById(long itemId);
 
-    void updateItem(Item item, long itemId);
-
     List<Item> findByUserId(long userId);
 
     List<Item> findBySearch(String searchText);

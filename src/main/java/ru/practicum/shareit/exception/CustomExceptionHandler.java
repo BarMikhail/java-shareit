@@ -27,6 +27,13 @@ public class CustomExceptionHandler {
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler
+    public CustomResponseError handleNotFoundArgumentException(final InvalidDataException e) {
+        log.debug("Получен статус 400 Bad Request {}", e.getMessage(), e);
+        return new CustomResponseError(e.getMessage());
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler
     public CustomResponseError handleNotFoundArgumentException(final MethodArgumentNotValidException e) {
         log.debug("Получен статус 400 Bad Request {}", e.getMessage(), e);
         return new CustomResponseError(e.getMessage());

@@ -14,7 +14,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import ru.practicum.shareit.additionally.Create;
 import ru.practicum.shareit.additionally.Update;
+import ru.practicum.shareit.comment.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemDtoBooking;
 import ru.practicum.shareit.item.service.ItemService;
 
 import java.util.List;
@@ -29,8 +31,8 @@ public class ItemController {
     private static final String X_SHARER_USER_ID = "X-Sharer-User-Id";
 
     @PostMapping
-    public ItemDto addItem(@RequestHeader(X_SHARER_USER_ID) long userId, @Validated(Create.class) @RequestBody ItemDto itemDto) {
-        log.info("Добавление вещи");
+    public ItemDto addItem(@RequestHeader(X_SHARER_USER_ID) long userId,
+                           @Validated(Create.class) @RequestBody ItemDto itemDto) {
         log.info("Посмотрим что передается {}, и какому юзеру {}", itemDto, userId);
         return itemService.addItem(userId, itemDto);
     }
@@ -39,26 +41,34 @@ public class ItemController {
     public ItemDto updateItem(@PathVariable("itemId") long itemId,
                               @RequestBody @Validated(Update.class) ItemDto itemDto,
                               @RequestHeader(X_SHARER_USER_ID) long userId) {
-        log.info("Обновление вещи");
         log.info("Посмотрим что обновляется {}, id {} вещи, и у какого юзера {}", itemDto, itemId, userId);
         return itemService.updateItem(itemId, itemDto, userId);
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto getItemById(@PathVariable("itemId") long itemId) {
+    public ItemDtoBooking getItemById(@PathVariable("itemId") long itemId,
+                               @RequestHeader(X_SHARER_USER_ID) long userId) {
         log.info("Поиск определенной вещи, id = {}", itemId);
-        return itemService.getItemById(itemId);
+        return itemService.getItemById(itemId, userId);
     }
 
     @GetMapping
-    public List<ItemDto> getAllItem(@RequestHeader(X_SHARER_USER_ID) long userId) {
+    public List<ItemDtoBooking> getAllItemByUser(@RequestHeader(X_SHARER_USER_ID) long userId) {
         log.info("Просмотр владельцем всех вещей, id = {} пользователя", userId);
-        return itemService.getAllItem(userId);
+        return itemService.getAllItemByOwnerId(userId);
     }
 
     @GetMapping("/search")
     public List<ItemDto> searchItems(@RequestParam String text) {
         log.info("Поиск вещи арендатором, text = {}", text);
         return itemService.searchItems(text);
+    }
+
+    @PostMapping("/{itemId}/comment")
+    public CommentDto createComment(@RequestHeader(X_SHARER_USER_ID) long userId,
+                                    @Validated(Create.class) @RequestBody CommentDto commentDto,
+                                    @PathVariable("itemId") long itemId){
+        log.info("Добавление нового отзыва {} об вещи {}", commentDto, itemId);
+        return itemService.createComment(commentDto, userId, itemId);
     }
 }

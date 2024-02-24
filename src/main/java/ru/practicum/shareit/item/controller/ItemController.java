@@ -47,7 +47,7 @@ public class ItemController {
 
     @GetMapping("/{itemId}")
     public ItemDtoBooking getItemById(@PathVariable("itemId") long itemId,
-                               @RequestHeader(X_SHARER_USER_ID) long userId) {
+                                      @RequestHeader(X_SHARER_USER_ID) long userId) {
         log.info("Поиск определенной вещи, id = {}", itemId);
         return itemService.getItemById(itemId, userId);
     }
@@ -67,7 +67,7 @@ public class ItemController {
     @PostMapping("/{itemId}/comment")
     public CommentDto createComment(@RequestHeader(X_SHARER_USER_ID) long userId,
                                     @Validated(Create.class) @RequestBody CommentDto commentDto,
-                                    @PathVariable("itemId") long itemId){
+                                    @PathVariable("itemId") long itemId) {
         log.info("Добавление нового отзыва {} об вещи {}", commentDto, itemId);
         return itemService.createComment(commentDto, userId, itemId);
     }

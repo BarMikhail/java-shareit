@@ -32,13 +32,13 @@ public class ItemMapper {
                 .build();
     }
 
-    public ItemDtoBooking toItemDtoBooking(Item item, List<CommentDto> comments){
+    public ItemDtoBooking toItemDtoBooking(Item item, List<CommentDto> comments) {
         return ItemDtoBooking.builder()
                 .id(item.getId())
                 .name(item.getName())
                 .description(item.getDescription())
                 .available(item.getAvailable())
-                .comment(comments)
+                .comments(comments)
                 .build();
     }
 }

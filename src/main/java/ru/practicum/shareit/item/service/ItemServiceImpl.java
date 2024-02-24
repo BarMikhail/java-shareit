@@ -12,6 +12,7 @@ import ru.practicum.shareit.comment.dto.CommentDto;
 import ru.practicum.shareit.comment.mapper.CommentMapper;
 import ru.practicum.shareit.comment.model.Comment;
 import ru.practicum.shareit.comment.repository.CommentRepository;
+import ru.practicum.shareit.exception.InvalidDataException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoBooking;
@@ -117,10 +118,11 @@ public class ItemServiceImpl implements ItemService {
         Comment comment = CommentMapper.toComment(commentDto);
         User user = checkUser(userId);
         Item item = checkItem(itemId);
-        bookingRepository.findFirstByItemIdAndBookerIdAndStatusAndEndDateBefore(itemId, userId, BookingStatus.APPROVED, LocalDateTime.now());
+        bookingRepository.findFirstByItemIdAndBookerIdAndStatusAndEndDateBefore(itemId, userId, BookingStatus.APPROVED, LocalDateTime.now())
+                .orElseThrow(() -> new InvalidDataException("Не удалось найти товар для этого пользователя"));
         comment.setItem(item);
         comment.setUser(user);
-        return CommentMapper.toCommentDto(comment);
+        return CommentMapper.toCommentDto(commentRepository.save(comment));
     }
 
 
@@ -131,7 +133,7 @@ public class ItemServiceImpl implements ItemService {
 
     private User checkUser(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("Нет такой user"));
+                .orElseThrow(() -> new NotFoundException("Нет такой пользователя"));
     }
 
     private List<CommentDto> getCommentListByItem(Long itemId) {
@@ -147,7 +149,7 @@ public class ItemServiceImpl implements ItemService {
         Optional<Booking> lastBooking = bookingRepository
                 .findFirstByItem_IdAndStartDateBeforeOrderByEndDateDesc(item.getId(), LocalDateTime.now());
         Optional<Booking> nextBooking = bookingRepository
-                .findFirstByItem_IdAndStartDateBeforeOrderByEndDateDesc(item.getId(), LocalDateTime.now());
+                .findFirstByItem_IdAndStartDateAfterOrderByEndDateAsc(item.getId(), LocalDateTime.now());
         if (lastBooking.isEmpty()) {
             itemDtoBooking.setLastBooking(null);
             itemDtoBooking.setNextBooking(null);

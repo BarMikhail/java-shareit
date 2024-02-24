@@ -127,13 +127,11 @@ public class ItemServiceImpl implements ItemService {
 
 
     private Item checkItem(Long itemId) {
-        return itemRepository.findById(itemId).
-                orElseThrow(() -> new NotFoundException("Нет такой вещи"));
+        return itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException("Нет такой вещи"));
     }
 
     private User checkUser(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("Нет такой пользователя"));
+        return userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Нет такой пользователя"));
     }
 
     private List<CommentDto> getCommentListByItem(Long itemId) {

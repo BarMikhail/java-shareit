@@ -167,17 +167,14 @@ public class BookingServiceImp implements BookingService {
     }
 
     private User checkUser(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+        return userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
     }
 
     private Item checkItem(Long itemId) {
-        return itemRepository.findById(itemId)
-                .orElseThrow(() -> new NotFoundException("Товар не найден"));
+        return itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException("Товар не найден"));
     }
 
     private Booking chekBooking(Long bookingId) {
-        return bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new NotFoundException("Бронирование не найдено."));
+        return bookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException("Бронирование не найдено."));
     }
 }

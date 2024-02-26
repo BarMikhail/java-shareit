@@ -26,7 +26,7 @@ public class CustomExceptionHandler {
         return new CustomResponseError(e.getMessage());
     }
 
-    @ExceptionHandler({InvalidDataException.class})
+    @ExceptionHandler({InvalidDataException.class, MethodArgumentNotValidException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public CustomResponseError handleInvalidDataException(final RuntimeException e) {
         log.debug("Получен статус 400 Bad Request {}", e.getMessage(), e);
@@ -38,13 +38,6 @@ public class CustomExceptionHandler {
     public CustomResponseError handleIllegalArgumentException(final RuntimeException e) {
         log.debug("Получен статус 400 Bad Request {}", e.getMessage(), e);
         return new CustomResponseError("Unknown state: UNSUPPORTED_STATUS");
-    }
-
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler
-    public CustomResponseError handleNotFoundArgumentException(final MethodArgumentNotValidException e) {
-        log.debug("Получен статус 400 Bad Request {}", e.getMessage(), e);
-        return new CustomResponseError(e.getMessage());
     }
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)

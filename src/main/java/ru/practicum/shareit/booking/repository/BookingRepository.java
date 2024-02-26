@@ -1,7 +1,7 @@
 package ru.practicum.shareit.booking.repository;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 
@@ -10,40 +10,30 @@ import java.util.List;
 import java.util.Optional;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
+    List<Booking> findAllByBookerId(Long userId, Sort sort);
 
-    List<Booking> findAllByBookerIdOrderByStartDateDesc(Long userId);
+    List<Booking> findAllByBookerIdAndStartDateBeforeAndEndDateAfter(long bookerId, LocalDateTime start, LocalDateTime end, Sort sort);
 
-    List<Booking> findAllByBookerIdAndStartDateBeforeAndEndDateAfterOrderByStartDateAsc(long bookerId, LocalDateTime start, LocalDateTime end);
+    List<Booking> findAllByBookerIdAndEndDateBefore(long bookerId, LocalDateTime dateTime, Sort sort);
 
-    List<Booking> findAllByBookerIdAndEndDateBeforeOrderByStartDateDesc(long bookerId, LocalDateTime dateTime);
+    List<Booking> findAllByBookerIdAndStartDateAfter(long bookerId, LocalDateTime dateTime, Sort sort);
 
-    List<Booking> findAllByBookerIdAndStartDateAfterOrderByStartDateDesc(long bookerId, LocalDateTime dateTime);
-
-    List<Booking> findAllByBookerIdAndStatusOrderByStartDateDesc(long bookerId, BookingStatus status);
-
-
-    List<Booking> findAllByItemOwnerIdOrderByStartDateDesc(Long userId);
-
-    List<Booking> findAllByItemOwnerIdAndStartDateBeforeAndEndDateAfterOrderByStartDateAsc(long ownerId, LocalDateTime start, LocalDateTime end);
-
-    List<Booking> findAllByItemOwnerIdAndEndDateBeforeOrderByStartDateDesc(long ownerId, LocalDateTime dateTime);
-
-    List<Booking> findAllByItemOwnerIdAndStartDateAfterOrderByStartDateDesc(long ownerId, LocalDateTime dateTime);
-
-    List<Booking> findAllByItemOwnerIdAndStatusOrderByStartDateDesc(long ownerId, BookingStatus status);
+    List<Booking> findAllByBookerIdAndStatus(long bookerId, BookingStatus status, Sort sort);
 
 
-    @Query(value = "SELECT * FROM bookings b " +
-            "WHERE b.item_id = ?1 AND b.start_date <= CAST (?2 AS timestamp) " +
-            "ORDER BY end_date DESC limit 1", nativeQuery = true)
-    Optional<Booking> findFirstByItem_IdAndStartDateBeforeOrderByEndDateDesc(Long itemId, LocalDateTime beforeDate);
+    List<Booking> findAllByItemOwnerId(Long userId, Sort sort);
 
-    @Query(value = "SELECT * FROM bookings b " +
-            "WHERE b.item_id = ?1 AND b.start_date >= CAST (?2 AS timestamp) " +
-            "ORDER BY end_date ASC limit 1", nativeQuery = true)
-    Optional<Booking> findFirstByItem_IdAndStartDateAfterOrderByEndDateAsc(Long itemId, LocalDateTime afterDate);
+    List<Booking> findAllByItemOwnerIdAndStartDateBeforeAndEndDateAfter(long ownerId, LocalDateTime start, LocalDateTime end, Sort sort);
 
-    Optional<Booking> findFirstByItemIdAndBookerIdAndStatusAndEndDateBefore(Long itemId, Long userId, BookingStatus status, LocalDateTime endDate);
+    List<Booking> findAllByItemOwnerIdAndEndDateBefore(long ownerId, LocalDateTime dateTime, Sort sort);
 
+    List<Booking> findAllByItemOwnerIdAndStartDateAfter(long ownerId, LocalDateTime dateTime, Sort sort);
 
+    List<Booking> findAllByItemOwnerIdAndStatus(long ownerId, BookingStatus status, Sort sort);
+
+    Optional<Booking> findFirstByItem_IdAndStartDateLessThanEqualOrderByEndDateDesc(Long itemId, LocalDateTime beforeDate);
+
+    Optional<Booking> findFirstByItem_IdAndStartDateGreaterThanOrderByEndDateAsc(Long itemId, LocalDateTime beforeDate);
+
+    boolean existsByItemIdAndBookerIdAndStatusAndEndDateBefore(Long itemId, Long userId, BookingStatus status, LocalDateTime endDate);
 }

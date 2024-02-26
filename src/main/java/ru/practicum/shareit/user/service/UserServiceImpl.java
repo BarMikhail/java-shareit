@@ -48,11 +48,11 @@ public class UserServiceImpl implements UserService {
     public UserDto updateUser(Long id, UserDto userDto) {
         User updateUser = repository.findById(id).orElseThrow(() -> new NotFoundException("Нет такого пользователя"));
         User user = UserMapper.toUser(userDto);
-        if (user.getName() != null) {
+        if (user.getName() != null && !user.getName().isBlank()) {
             updateUser.setName(user.getName());
         }
 
-        if (user.getEmail() != null) {
+        if (user.getEmail() != null && !user.getEmail().isEmpty()) {
             updateUser.setEmail(user.getEmail());
         }
         return UserMapper.toUserDTO(repository.save(updateUser));

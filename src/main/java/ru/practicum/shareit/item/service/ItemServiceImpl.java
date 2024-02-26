@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -27,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -86,13 +88,19 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemDtoBooking> getAllItemByOwnerId(Long userId) {
         List<Item> items = itemRepository.findAllByOwnerId(userId);
+
+        Map<Item, List<Comment>> comments = commentRepository.findByItemIn(items, Sort.by(Sort.Direction.DESC, "created"))
+                .stream()
+                .collect(Collectors.groupingBy(Comment::getItem));
+
         List<ItemDtoBooking> itemDtoBookings = new ArrayList<>();
 
         for (Item item : items) {
-            List<Comment> comments = commentRepository.findCommentsByUserId(userId);
-            List<CommentDto> commentDtoList = comments.stream()
+            List<Comment> itemComments = comments.getOrDefault(item, Collections.emptyList());
+            List<CommentDto> commentDtoList = itemComments.stream()
                     .map(CommentMapper::toCommentDto)
                     .collect(Collectors.toList());
+
             ItemDtoBooking itemDtoBooking = getItemDtoBooking(commentDtoList, item);
             itemDtoBookings.add(itemDtoBooking);
         }
@@ -118,8 +126,9 @@ public class ItemServiceImpl implements ItemService {
         Comment comment = CommentMapper.toComment(commentDto);
         User user = checkUser(userId);
         Item item = checkItem(itemId);
-        bookingRepository.findFirstByItemIdAndBookerIdAndStatusAndEndDateBefore(itemId, userId, BookingStatus.APPROVED, LocalDateTime.now())
-                .orElseThrow(() -> new InvalidDataException("Не удалось найти товар для этого пользователя"));
+        if (!bookingRepository.existsByItemIdAndBookerIdAndStatusAndEndDateBefore(itemId, userId, BookingStatus.APPROVED, LocalDateTime.now())) {
+            throw new InvalidDataException("Не удалось найти товар для этого пользователя");
+        }
         comment.setItem(item);
         comment.setUser(user);
         return CommentMapper.toCommentDto(commentRepository.save(comment));
@@ -144,10 +153,12 @@ public class ItemServiceImpl implements ItemService {
 
     private ItemDtoBooking getItemDtoBooking(List<CommentDto> commentListByItem, Item item) {
         ItemDtoBooking itemDtoBooking = ItemMapper.toItemDtoBooking(item, commentListByItem);
+
         Optional<Booking> lastBooking = bookingRepository
-                .findFirstByItem_IdAndStartDateBeforeOrderByEndDateDesc(item.getId(), LocalDateTime.now());
+                .findFirstByItem_IdAndStartDateLessThanEqualOrderByEndDateDesc(item.getId(), LocalDateTime.now());
         Optional<Booking> nextBooking = bookingRepository
-                .findFirstByItem_IdAndStartDateAfterOrderByEndDateAsc(item.getId(), LocalDateTime.now());
+                .findFirstByItem_IdAndStartDateGreaterThanOrderByEndDateAsc(item.getId(), LocalDateTime.now());
+
         if (lastBooking.isEmpty()) {
             itemDtoBooking.setLastBooking(null);
             itemDtoBooking.setNextBooking(null);
@@ -157,6 +168,7 @@ public class ItemServiceImpl implements ItemService {
             itemDtoBooking.setLastBooking(BookingMapper.toBookingOwnerDto(lastBooking.get()));
             itemDtoBooking.setNextBooking(BookingMapper.toBookingOwnerDto(nextBooking.get()));
         }
+
         return itemDtoBooking;
     }
 }

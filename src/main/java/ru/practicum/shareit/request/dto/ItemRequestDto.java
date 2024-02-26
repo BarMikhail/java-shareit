@@ -6,6 +6,7 @@ import lombok.Data;
 import ru.practicum.shareit.additionally.Create;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
 public class ItemRequestDto {
     private Long id;
     @NotBlank(groups = {Create.class})
+    @Size(max = 200)
     private String description;
     private Long authorId;
     private LocalDateTime created;

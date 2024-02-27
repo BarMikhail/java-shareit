@@ -15,8 +15,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import ru.practicum.shareit.additionally.Create;
 import ru.practicum.shareit.additionally.Update;
 import ru.practicum.shareit.comment.dto.CommentDto;
+import ru.practicum.shareit.comment.dto.CommentRequestDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoBooking;
+import ru.practicum.shareit.item.dto.ItemRequestDto;
 import ru.practicum.shareit.item.service.ItemService;
 
 import java.util.List;
@@ -32,9 +34,9 @@ public class ItemController {
 
     @PostMapping
     public ItemDto addItem(@RequestHeader(X_SHARER_USER_ID) long userId,
-                           @Validated(Create.class) @RequestBody ItemDto itemDto) {
-        log.info("Посмотрим что передается {}, и какому юзеру {}", itemDto, userId);
-        return itemService.addItem(userId, itemDto);
+                           @Validated(Create.class) @RequestBody ItemRequestDto itemRequestDto) {
+        log.info("Посмотрим что передается {}, и какому юзеру {}", itemRequestDto, userId);
+        return itemService.addItem(userId, itemRequestDto);
     }
 
     @PatchMapping("/{itemId}")
@@ -66,9 +68,9 @@ public class ItemController {
 
     @PostMapping("/{itemId}/comment")
     public CommentDto createComment(@RequestHeader(X_SHARER_USER_ID) long userId,
-                                    @Validated(Create.class) @RequestBody CommentDto commentDto,
+                                    @Validated(Create.class) @RequestBody CommentRequestDto commentRequestDto,
                                     @PathVariable("itemId") long itemId) {
-        log.info("Добавление нового отзыва {} об вещи {}", commentDto, itemId);
-        return itemService.createComment(commentDto, userId, itemId);
+        log.info("Добавление нового отзыва {} об вещи {}", commentRequestDto, itemId);
+        return itemService.createComment(commentRequestDto, userId, itemId);
     }
 }

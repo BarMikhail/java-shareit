@@ -11,7 +11,6 @@ import ru.practicum.shareit.item.model.Item;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findAllByBookerId(Long userId, Sort sort);

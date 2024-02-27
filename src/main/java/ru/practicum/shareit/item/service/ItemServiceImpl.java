@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,6 +11,7 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.comment.dto.CommentDto;
+import ru.practicum.shareit.comment.dto.CommentRequestDto;
 import ru.practicum.shareit.comment.mapper.CommentMapper;
 import ru.practicum.shareit.comment.model.Comment;
 import ru.practicum.shareit.comment.repository.CommentRepository;
@@ -17,6 +19,7 @@ import ru.practicum.shareit.exception.InvalidDataException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoBooking;
+import ru.practicum.shareit.item.dto.ItemRequestDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
@@ -28,6 +31,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ItemServiceImpl implements ItemService {
@@ -39,9 +43,9 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional
-    public ItemDto addItem(Long userId, ItemDto itemDto) {
+    public ItemDto addItem(Long userId, ItemRequestDto itemRequestDto) {
         User user = checkUser(userId);
-        Item item = ItemMapper.toItem(itemDto, user);
+        Item item = ItemMapper.toItemRequest(itemRequestDto, user);
         return ItemMapper.toItemDTO(itemRepository.save(item));
     }
 
@@ -146,8 +150,9 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional
-    public CommentDto createComment(CommentDto commentDto, Long userId, Long itemId) {
-        Comment comment = CommentMapper.toComment(commentDto);
+    public CommentDto createComment(CommentRequestDto commentRequestDto, Long userId, Long itemId) {
+        Comment comment = CommentMapper.toCommentRequest(commentRequestDto);
+
         User user = checkUser(userId);
         Item item = checkItem(itemId);
         if (!bookingRepository.existsByItemIdAndBookerIdAndStatusAndEndDateBefore(itemId, userId, BookingStatus.APPROVED, LocalDateTime.now())) {
@@ -155,6 +160,7 @@ public class ItemServiceImpl implements ItemService {
         }
         comment.setItem(item);
         comment.setUser(user);
+        log.info("{}", comment);
         return CommentMapper.toCommentDto(commentRepository.save(comment));
     }
 

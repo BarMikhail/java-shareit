@@ -17,11 +17,11 @@ public class UserDto {
     private long id;
 
     @NotBlank(groups = {Create.class})
-    @Size(max = 100)
+    @Size(max = 100, groups = {Create.class, Update.class})
     private String name;
 
     @Email(groups = {Create.class, Update.class}, message = "Где почта?!")
     @NotBlank(groups = {Create.class}, message = "Что-то пошло не так")
-    @Size(max = 100)
+    @Size(max = 100, groups = {Create.class, Update.class})
     private String email;
 }

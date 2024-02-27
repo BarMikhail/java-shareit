@@ -24,11 +24,7 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -84,7 +80,6 @@ public class ItemServiceImpl implements ItemService {
         }
     }
 
-
     @Override
     public List<ItemDtoBooking> getAllItemByOwnerId(Long userId) {
         List<Item> items = itemRepository.findAllByOwnerId(userId);
@@ -92,6 +87,10 @@ public class ItemServiceImpl implements ItemService {
         Map<Item, List<Comment>> comments = commentRepository.findByItemIn(items, Sort.by(Sort.Direction.DESC, "created"))
                 .stream()
                 .collect(Collectors.groupingBy(Comment::getItem));
+
+        Map<Item, List<Booking>> bookings = bookingRepository.findBookingsForItems(items)
+                .stream()
+                .collect(Collectors.groupingBy(Booking::getItem));
 
         List<ItemDtoBooking> itemDtoBookings = new ArrayList<>();
 
@@ -101,7 +100,32 @@ public class ItemServiceImpl implements ItemService {
                     .map(CommentMapper::toCommentDto)
                     .collect(Collectors.toList());
 
-            ItemDtoBooking itemDtoBooking = getItemDtoBooking(commentDtoList, item);
+            List<Booking> itemBookings = bookings.getOrDefault(item, Collections.emptyList());
+
+            ItemDtoBooking itemDtoBooking = ItemMapper.toItemDtoBooking(item, commentDtoList);
+
+            Optional<Booking> lastBooking = itemBookings.stream()
+                    .filter(booking -> booking.getStartDate().isBefore(LocalDateTime.now()))
+                    .max(Comparator.comparing(Booking::getEndDate));
+
+            Optional<Booking> nextBooking = itemBookings.stream()
+                    .filter(booking -> booking.getStartDate().isAfter(LocalDateTime.now()))
+                    .min(Comparator.comparing(Booking::getEndDate));
+
+            if (lastBooking.isPresent()) {
+                itemDtoBooking.setLastBooking(BookingMapper.toBookingOwnerDto(lastBooking.get()));
+
+                if (nextBooking.isPresent()) {
+                    itemDtoBooking.setNextBooking(BookingMapper.toBookingOwnerDto(nextBooking.get()));
+                } else {
+                    itemDtoBooking.setNextBooking(null);
+                }
+            } else {
+                itemDtoBooking.setLastBooking(null);
+                itemDtoBooking.setNextBooking(null);
+            }
+
+
             itemDtoBookings.add(itemDtoBooking);
         }
 
@@ -159,14 +183,17 @@ public class ItemServiceImpl implements ItemService {
         Optional<Booking> nextBooking = bookingRepository
                 .findFirstByItem_IdAndStartDateGreaterThanOrderByEndDateAsc(item.getId(), LocalDateTime.now());
 
-        if (lastBooking.isEmpty()) {
+        if (lastBooking.isPresent()) {
+            itemDtoBooking.setLastBooking(BookingMapper.toBookingOwnerDto(lastBooking.get()));
+
+            if (nextBooking.isPresent()) {
+                itemDtoBooking.setNextBooking(BookingMapper.toBookingOwnerDto(nextBooking.get()));
+            } else {
+                itemDtoBooking.setNextBooking(null);
+            }
+        } else {
             itemDtoBooking.setLastBooking(null);
             itemDtoBooking.setNextBooking(null);
-        } else if (nextBooking.isEmpty()) {
-            itemDtoBooking.setLastBooking(BookingMapper.toBookingOwnerDto(lastBooking.get()));
-        } else {
-            itemDtoBooking.setLastBooking(BookingMapper.toBookingOwnerDto(lastBooking.get()));
-            itemDtoBooking.setNextBooking(BookingMapper.toBookingOwnerDto(nextBooking.get()));
         }
 
         return itemDtoBooking;

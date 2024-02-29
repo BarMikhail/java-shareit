@@ -1,27 +1,27 @@
-package ru.practicum.shareit.user.dto;
+package ru.practicum.shareit.item.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import ru.practicum.shareit.additionally.Create;
 import ru.practicum.shareit.additionally.Update;
 
-import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-@Builder
 @Data
+@Builder
 @AllArgsConstructor
-public class UserDto {
-    private long id;
-
+@NoArgsConstructor
+public class ItemRequestDto {
     @NotBlank(groups = {Create.class})
     @Size(max = 100, groups = {Create.class, Update.class})
+    private String description;
+    @NotBlank(groups = {Create.class})
+    @Size(max = 200, groups = {Create.class, Update.class})
     private String name;
-
-    @Email(groups = {Create.class, Update.class}, message = "Где почта?!")
-    @NotBlank(groups = {Create.class}, message = "Что-то пошло не так")
-    @Size(max = 100, groups = {Create.class, Update.class})
-    private String email;
+    @NotNull(groups = {Create.class})
+    private Boolean available;
 }

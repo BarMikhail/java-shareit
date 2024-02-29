@@ -3,21 +3,20 @@ package ru.practicum.shareit.request.dto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import ru.practicum.shareit.additionally.Create;
+import ru.practicum.shareit.additionally.Update;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
-import java.time.LocalDateTime;
 
 
 @Data
 @Builder
 @AllArgsConstructor
-public class ItemRequestDto {
-    private Long id;
+@NoArgsConstructor
+public class ItemPostDto {
     @NotBlank(groups = {Create.class})
-    @Size(max = 200)
+    @Size(max = 200, groups = {Create.class, Update.class})
     private String description;
-    private Long authorId;
-    private LocalDateTime created;
 }

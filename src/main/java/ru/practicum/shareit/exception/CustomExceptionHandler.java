@@ -6,6 +6,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @Slf4j
 @RestControllerAdvice
@@ -25,11 +26,18 @@ public class CustomExceptionHandler {
         return new CustomResponseError(e.getMessage());
     }
 
+    @ExceptionHandler({InvalidDataException.class, MethodArgumentNotValidException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler
-    public CustomResponseError handleNotFoundArgumentException(final MethodArgumentNotValidException e) {
+    public CustomResponseError handleInvalidDataException(final RuntimeException e) {
         log.debug("Получен статус 400 Bad Request {}", e.getMessage(), e);
         return new CustomResponseError(e.getMessage());
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public CustomResponseError handleIllegalArgumentException(final RuntimeException e) {
+        log.debug("Получен статус 400 Bad Request {}", e.getMessage(), e);
+        return new CustomResponseError("Unknown state: UNSUPPORTED_STATUS");
     }
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)

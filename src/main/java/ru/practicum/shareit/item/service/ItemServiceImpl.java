@@ -118,15 +118,10 @@ public class ItemServiceImpl implements ItemService {
 
             if (lastBooking.isPresent()) {
                 itemDtoBooking.setLastBooking(BookingMapper.toBookingOwnerDto(lastBooking.get()));
+            }
 
-                if (nextBooking.isPresent()) {
-                    itemDtoBooking.setNextBooking(BookingMapper.toBookingOwnerDto(nextBooking.get()));
-                } else {
-                    itemDtoBooking.setNextBooking(null);
-                }
-            } else {
-                itemDtoBooking.setLastBooking(null);
-                itemDtoBooking.setNextBooking(null);
+            if (nextBooking.isPresent()) {
+                itemDtoBooking.setNextBooking(BookingMapper.toBookingOwnerDto(nextBooking.get()));
             }
 
 
@@ -185,21 +180,16 @@ public class ItemServiceImpl implements ItemService {
         ItemDtoBooking itemDtoBooking = ItemMapper.toItemDtoBooking(item, commentListByItem);
 
         Optional<Booking> lastBooking = bookingRepository
-                .findFirstByItem_IdAndStartDateLessThanEqualOrderByEndDateDesc(item.getId(), LocalDateTime.now());
+                .findFirstByItemIdAndStatusAndStartDateBeforeOrderByStartDateDesc(item.getId(), BookingStatus.APPROVED, LocalDateTime.now());
         Optional<Booking> nextBooking = bookingRepository
-                .findFirstByItem_IdAndStartDateGreaterThanOrderByEndDateAsc(item.getId(), LocalDateTime.now());
+                .findFirstByItemIdAndStatusAndStartDateAfterOrderByStartDateAsc(item.getId(), BookingStatus.APPROVED, LocalDateTime.now());
 
         if (lastBooking.isPresent()) {
             itemDtoBooking.setLastBooking(BookingMapper.toBookingOwnerDto(lastBooking.get()));
+        }
 
-            if (nextBooking.isPresent()) {
-                itemDtoBooking.setNextBooking(BookingMapper.toBookingOwnerDto(nextBooking.get()));
-            } else {
-                itemDtoBooking.setNextBooking(null);
-            }
-        } else {
-            itemDtoBooking.setLastBooking(null);
-            itemDtoBooking.setNextBooking(null);
+        if (nextBooking.isPresent()) {
+            itemDtoBooking.setNextBooking(BookingMapper.toBookingOwnerDto(nextBooking.get()));
         }
 
         return itemDtoBooking;

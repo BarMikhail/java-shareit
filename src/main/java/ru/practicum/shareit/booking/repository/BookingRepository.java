@@ -34,12 +34,13 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     List<Booking> findAllByItemOwnerIdAndStatus(long ownerId, BookingStatus status, Sort sort);
 
-    Optional<Booking> findFirstByItem_IdAndStartDateLessThanEqualOrderByEndDateDesc(Long itemId, LocalDateTime beforeDate);
-
-    Optional<Booking> findFirstByItem_IdAndStartDateGreaterThanOrderByEndDateAsc(Long itemId, LocalDateTime beforeDate);
-
     boolean existsByItemIdAndBookerIdAndStatusAndEndDateBefore(Long itemId, Long userId, BookingStatus status, LocalDateTime endDate);
 
-    @Query("SELECT b FROM Booking b JOIN FETCH b.item WHERE b.item IN :items")
+    @Query("SELECT b FROM Booking b JOIN FETCH b.item WHERE b.item IN :items AND b.status = 'APPROVED'")
     List<Booking> findBookingsForItems(@Param("items") List<Item> items);
+
+
+    Optional<Booking> findFirstByItemIdAndStatusAndStartDateBeforeOrderByStartDateDesc(Long itemId, BookingStatus status, LocalDateTime dateTime);
+
+    Optional<Booking> findFirstByItemIdAndStatusAndStartDateAfterOrderByStartDateAsc(Long itemId, BookingStatus status, LocalDateTime dateTime);
 }

@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import ru.practicum.shareit.additionally.Create;
 import ru.practicum.shareit.additionally.Update;
-import ru.practicum.shareit.request.model.ItemRequest;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -27,5 +26,5 @@ public class ItemDto {
 
     private Long owner;
 
-    private ItemRequest itemRequest;
+    private Long requestId;
 }

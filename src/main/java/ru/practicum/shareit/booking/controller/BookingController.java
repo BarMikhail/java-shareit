@@ -2,6 +2,7 @@ package ru.practicum.shareit.booking.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoResponse;
@@ -9,12 +10,15 @@ import ru.practicum.shareit.booking.model.BookingState;
 import ru.practicum.shareit.booking.service.BookingService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @Slf4j
 @RestController
 @RequestMapping(path = "/bookings")
 @RequiredArgsConstructor
+@Validated
 public class BookingController {
     private final BookingService service;
     private static final String X_SHARER_USER_ID = "X-Sharer-User-Id";
@@ -43,15 +47,19 @@ public class BookingController {
 
     @GetMapping
     public List<BookingDtoResponse> getAllByBookings(@RequestHeader(X_SHARER_USER_ID) Long userId,
-                                                     @RequestParam(defaultValue = "ALL") BookingState state) {
+                                                     @RequestParam(defaultValue = "ALL") BookingState state,
+                                                     @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
+                                                     @Positive @RequestParam(defaultValue = "10") Integer size) {
         log.info("Получение списка всех бронирований");
-        return service.getAllBooking(state, userId);
+        return service.getAllBooking(state, userId, from, size);
     }
 
     @GetMapping("/owner")
     public List<BookingDtoResponse> getAllByOwner(@RequestHeader(X_SHARER_USER_ID) Long userId,
-                                                  @RequestParam(defaultValue = "ALL") BookingState state) {
+                                                  @RequestParam(defaultValue = "ALL") BookingState state,
+                                                  @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
+                                                  @Positive @RequestParam(defaultValue = "10") Integer size) {
         log.info("получить список всех бронирований собственника вещей");
-        return service.getAllBookingByOwner(state, userId);
+        return service.getAllBookingByOwner(state, userId, from, size);
     }
 }

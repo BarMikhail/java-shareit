@@ -1,11 +1,14 @@
 package ru.practicum.shareit.request.model;
 
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Setter
@@ -26,5 +29,9 @@ public class ItemRequest {
     @JoinColumn(name = "requester_id")
     private User user;
 
-    private LocalDateTime created = LocalDateTime.now();
+    @CreationTimestamp
+    private LocalDateTime created;
+
+    @OneToMany(mappedBy = "itemRequest")
+    List<Item> items;
 }

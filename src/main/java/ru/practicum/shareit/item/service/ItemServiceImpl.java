@@ -2,6 +2,7 @@ package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +24,7 @@ import ru.practicum.shareit.item.dto.ItemRequestDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
@@ -40,12 +42,16 @@ public class ItemServiceImpl implements ItemService {
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
+    private final ItemRequestRepository itemRequestRepository;
 
     @Override
     @Transactional
     public ItemDto addItem(Long userId, ItemRequestDto itemRequestDto) {
         User user = checkUser(userId);
         Item item = ItemMapper.toItemRequest(itemRequestDto, user);
+        if (itemRequestDto.getRequestId() != null) {
+            item.setItemRequest(itemRequestRepository.getReferenceById(itemRequestDto.getRequestId()));
+        }
         return ItemMapper.toItemDTO(itemRepository.save(item));
     }
 
@@ -85,8 +91,9 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDtoBooking> getAllItemByOwnerId(Long userId) {
-        List<Item> items = itemRepository.findAllByOwnerId(userId);
+    public List<ItemDtoBooking> getAllItemByOwnerId(Long userId, Integer from, Integer size) {
+        List<Item> items = itemRepository.findAllByOwnerId(userId,
+                PageRequest.of(from / size, size));
 
         Map<Item, List<Comment>> comments = commentRepository.findByItemIn(items, Sort.by(Sort.Direction.DESC, "created"))
                 .stream()
@@ -132,12 +139,13 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> searchItems(String searchText) {
+    public List<ItemDto> searchItems(String searchText, Integer from, Integer size) {
         if (!StringUtils.hasText(searchText)) {
             return Collections.emptyList();
         }
 
-        List<Item> items = itemRepository.searchItemByText(searchText);
+        List<Item> items = itemRepository.searchItemByText(searchText,
+                PageRequest.of(from / size, size));
         return items.stream()
                 .map(ItemMapper::toItemDTO)
                 .collect(Collectors.toList());

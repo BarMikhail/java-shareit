@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 class CommentMapperTest {
 
     @Test
-    void toRequest() {
+    void toCommentRequestTest() {
         CommentRequestDto commentRequestDto = CommentRequestDto.builder()
                 .text("Test")
                 .build();
@@ -27,7 +27,7 @@ class CommentMapperTest {
     }
 
     @Test
-    void toReques123t() {
+    void toCommentDtoTest() {
         User user = User.builder()
                 .id(1L)
                 .name("Test")

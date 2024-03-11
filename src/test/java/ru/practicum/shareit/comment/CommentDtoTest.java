@@ -19,7 +19,7 @@ class CommentDtoTest {
     private JacksonTester<CommentDto> json;
 
     @Test
-    void testItemRequestDto() throws Exception {
+    void commentDtoTest() throws Exception {
 
         LocalDateTime created = LocalDateTime.of(2024, 3, 10, 0, 0);
 

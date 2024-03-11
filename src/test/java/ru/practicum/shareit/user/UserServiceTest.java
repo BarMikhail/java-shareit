@@ -53,7 +53,7 @@ class UserServiceTest {
 
 
     @Test
-    void getAllUsers() {
+    void getAllUsersTest() {
 
         when(userRepository.findAll()).thenReturn(List.of(firstUser, seconfUser));
 
@@ -67,7 +67,7 @@ class UserServiceTest {
     }
 
     @Test
-    void getUserById() {
+    void getUserByIdTest() {
         when(userRepository.findById(2L)).thenReturn(Optional.ofNullable(seconfUser));
 
         UserDto resultUser = userService.getUserById(2L);
@@ -78,7 +78,7 @@ class UserServiceTest {
     }
 
     @Test
-    void createUser() {
+    void createUserTest() {
         when(userRepository.save(any(User.class))).thenReturn(firstUser);
 
         UserDto resultUser = userService.createUser(firstUserDto);
@@ -89,7 +89,7 @@ class UserServiceTest {
     }
 
     @Test
-    void updateUser() {
+    void updateUserTest() {
 
         when(userRepository.save(any(User.class))).thenReturn(firstUser);
         when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(firstUser));
@@ -102,7 +102,7 @@ class UserServiceTest {
     }
 
     @Test
-    void deleteUser() {
+    void deleteUserTest() {
         userService.deleteUser(firstUser.getId());
 
         verify(userRepository).deleteById(firstUser.getId());

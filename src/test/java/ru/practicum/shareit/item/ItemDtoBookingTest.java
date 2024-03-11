@@ -22,11 +22,11 @@ class ItemDtoBookingTest {
     private JacksonTester<ItemDtoBooking> json;
 
     @Test
-    void testSerialize() throws Exception {
+    void itemDtoBookingTest() throws Exception {
         CommentDto comment = CommentDto.builder()
                 .id(1L)
-                .text("Great balalaika! Thanks!")
-                .authorName("Shaun")
+                .text("Test !test test")
+                .authorName("Appa")
                 .created(LocalDateTime.now())
                 .build();
 

@@ -15,15 +15,15 @@ class ItemPostDtoTest {
     private JacksonTester<ItemPostDto> json;
 
     @Test
-    void testItemRequestDto() throws Exception {
+    void itemPostDtoTest() throws Exception {
         ItemPostDto requestDtoInput = ItemPostDto.builder()
-                .description("Looking for a balalaika")
+                .description("Test !test test")
                 .build();
 
         JsonContent<ItemPostDto> result = json.write(requestDtoInput);
 
         Assertions.assertThat(result).hasJsonPath("$.description");
-        Assertions.assertThat(result).extractingJsonPathStringValue("$.description").isEqualTo("Looking for a balalaika");
+        Assertions.assertThat(result).extractingJsonPathStringValue("$.description").isEqualTo("Test !test test");
     }
 
 }

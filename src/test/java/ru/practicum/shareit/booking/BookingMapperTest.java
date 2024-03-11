@@ -21,38 +21,48 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class BookingMapperTest {
 
+
+
+    private User owner = User.builder()
+            .id(1L)
+            .name("Test")
+            .email("test@ya.ru")
+            .build();
+
+    private ItemRequest itemRequest = ItemRequest.builder()
+            .id(1L)
+            .description("Looking for a balalaika")
+            .build();
+
+    private Item item =Item.builder()
+            .id(1L)
+            .available(true)
+            .description("test test")
+            .owner(owner)
+            .itemRequest(itemRequest)
+            .name("test")
+            .build();
+
+    private User user = User.builder()
+            .id(1L)
+            .name("Test")
+            .email("test@ya.ru")
+            .build();
+
+    private Booking booking =Booking.builder().id(1L)
+            .booker(owner)
+            .item(item)
+            .endDate(LocalDateTime.now())
+            .startDate(LocalDateTime.now())
+            .status(BookingStatus.WAITING)
+            .build();
+
     @Test
     void toBooking() {
         BookingDto bookingDto = BookingDto.builder()
                 .itemId(1L)
                 .start(LocalDateTime.now())
                 .end(LocalDateTime.now())
-                .build();
-
-        User owner = User.builder()
-                .id(1L)
-                .name("Test")
-                .email("test@ya.ru")
-                .build();
-
-         ItemRequest itemRequest = ItemRequest.builder()
-                .id(1L)
-                .description("Looking for a balalaika")
-                .build();
-
-         Item item =Item.builder()
-                .id(1L)
-                .available(true)
-                .description("test test")
-                .owner(owner)
-                .itemRequest(itemRequest)
-                .name("test")
-                .build();
-
-        User user = User.builder()
-                .id(1L)
-                .name("Test")
-                .email("test@ya.ru")
                 .build();
 
         Booking booking = BookingMapper.toBooking(bookingDto,item,user);
@@ -67,38 +77,12 @@ class BookingMapperTest {
     }
 
     @Test
-    void toBookingResponse() {
-        User owner = User.builder()
-                .id(1L)
-                .name("Test")
-                .email("test@ya.ru")
-                .build();
-
-        ItemRequest itemRequest = ItemRequest.builder()
-                .id(1L)
-                .description("Looking for a balalaika")
-                .build();
-
-        Item item =Item.builder()
-                .id(1L)
-                .available(true)
-                .description("test test")
-                .owner(owner)
-                .itemRequest(itemRequest)
-                .name("test")
-                .build();
-
-        Booking booking =Booking.builder().id(1L)
-                .booker(owner)
-                .item(item)
-                .endDate(LocalDateTime.now())
-                .startDate(LocalDateTime.now())
-                .status(BookingStatus.WAITING)
-                .build();
+    void toBookingResponseTest() {
 
         ItemDto itemDto = ItemMapper.toItemDTO(item);
 
         BookingDtoResponse bookingDtoResponse = BookingMapper.toBookingResponse(booking,itemDto);
+
         assertNotNull(bookingDtoResponse);
 
         assertEquals(booking.getId(), bookingDtoResponse.getId());
@@ -111,37 +95,11 @@ class BookingMapperTest {
     }
 
     @Test
-    void toBookingOwnerDto() {
-
-        User owner = User.builder()
-                .id(1L)
-                .name("Test")
-                .email("test@ya.ru")
-                .build();
-
-        ItemRequest itemRequest = ItemRequest.builder()
-                .id(1L)
-                .description("Looking for a balalaika")
-                .build();
-
-        Item item =Item.builder()
-                .id(1L)
-                .available(true)
-                .description("test test")
-                .owner(owner)
-                .itemRequest(itemRequest)
-                .name("test")
-                .build();
-
-        Booking booking =Booking.builder().id(1L)
-                .booker(owner)
-                .item(item)
-                .endDate(LocalDateTime.now())
-                .startDate(LocalDateTime.now())
-                .status(BookingStatus.WAITING)
-                .build();
+    void toBookingOwnerDtoTest() {
 
         BookingOwnerDto bookingOwnerDto = BookingMapper.toBookingOwnerDto(booking);
+
+        assertNotNull(bookingOwnerDto);
 
         assertEquals(booking.getId(), bookingOwnerDto.getId());
         assertEquals(booking.getBooker().getId(), bookingOwnerDto.getBookerId());

@@ -18,7 +18,7 @@ class BookingOwnerDtoTest {
     private JacksonTester<BookingOwnerDto> json;
 
     @Test
-    void testSerialize() throws Exception {
+    void bookingOwnerDtoTest() throws Exception {
         BookingOwnerDto bookingOwnerDto = BookingOwnerDto.builder()
                 .id(1L)
                 .bookerId(1L)

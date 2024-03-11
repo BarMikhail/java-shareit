@@ -21,20 +21,20 @@ class ItemRequestDtoOutTest {
     private JacksonTester<ItemRequestDtoOut> json;
 
     @Test
-    void testItemRequestDto() throws Exception {
+    void itemRequestDtoOutTest() throws Exception {
 
         LocalDateTime created = LocalDateTime.of(2024, 3, 10, 0, 0);
 
         ItemDto itemDto = ItemDto.builder()
                 .requestId(1L)
-                .name("guitar")
-                .description("a very good tool")
+                .name("Test")
+                .description("test test")
                 .available(true)
                 .build();
 
         ItemRequestDtoOut itemRequestDto = ItemRequestDtoOut.builder()
                 .id(1L)
-                .description("ItemRequest 1")
+                .description("Test 1")
                 .created(created)
                 .items(List.of(itemDto))
                 .build();
@@ -42,7 +42,7 @@ class ItemRequestDtoOutTest {
         JsonContent<ItemRequestDtoOut> result = json.write(itemRequestDto);
 
         assertThat(result).extractingJsonPathNumberValue("$.id").isEqualTo(1);
-        assertThat(result).extractingJsonPathStringValue("$.description").isEqualTo("ItemRequest 1");
+        assertThat(result).extractingJsonPathStringValue("$.description").isEqualTo("Test 1");
         assertThat(result).extractingJsonPathStringValue("$.created").isEqualTo(created.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
     }
 

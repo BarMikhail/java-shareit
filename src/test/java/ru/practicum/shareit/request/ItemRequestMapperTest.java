@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 class ItemRequestMapperTest {
 
     @Test
-    void toRequest() {
+    void toRequestTest() {
         ItemPostDto itemPostDto = ItemPostDto.builder()
                 .description("Test")
                 .build();
@@ -33,7 +33,7 @@ class ItemRequestMapperTest {
     }
 
     @Test
-    void toItemRequestDtoOut() {
+    void toItemRequestDtoOutTest() {
         LocalDateTime created = LocalDateTime.of(2024, 3, 10, 0, 0);
 
         User user = User.builder()
@@ -44,14 +44,14 @@ class ItemRequestMapperTest {
 
         Item item = Item.builder()
                 .id(1L)
-                .name("guitar")
-                .description("a very good tool")
+                .name("Proba")
+                .description("test test")
                 .available(true)
                 .build();
 
         ItemRequest itemRequest = ItemRequest.builder()
                 .id(1L)
-                .description("ItemRequest 1")
+                .description("Test 1")
                 .created(created)
                 .items(List.of(item))
                 .user(user)

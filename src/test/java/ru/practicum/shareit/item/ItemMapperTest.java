@@ -26,7 +26,7 @@ class ItemMapperTest {
 
     private ItemRequest itemRequest = ItemRequest.builder()
             .id(1L)
-            .description("Looking for a balalaika")
+            .description("Test !test test")
             .build();
 
     private Item item =Item.builder()
@@ -39,7 +39,7 @@ class ItemMapperTest {
             .build();
 
     @Test
-    void toItemDtoWithRequestId_FromItem() {
+    void toItemDtoTest() {
 
 
         ItemDto itemDto = ItemMapper.toItemDTO(item);
@@ -57,11 +57,11 @@ class ItemMapperTest {
     }
 
     @Test
-    void toItemDto_FromItem() {
+    void toItemDtoBookingTest() {
         CommentDto comment = CommentDto.builder()
                 .id(1L)
-                .text("Great balalaika! Thanks!")
-                .authorName("Shaun")
+                .text("Test !test test")
+                .authorName("Appa")
                 .created(LocalDateTime.now())
                 .build();
 
@@ -79,7 +79,7 @@ class ItemMapperTest {
     }
 
     @Test
-    void toItemDto_FromItem123() {
+    void toItemRequestTest() {
 
         ItemRequestDto itemRequestDto = ItemRequestDto.builder()
                 .name("Test")

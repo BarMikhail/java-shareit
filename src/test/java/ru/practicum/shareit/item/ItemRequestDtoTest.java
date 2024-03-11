@@ -16,7 +16,7 @@ class ItemRequestDtoTest {
     private JacksonTester<ItemRequestDto> json;
 
     @Test
-    void testSerialize() throws Exception {
+    void itemRequestDtoTest() throws Exception {
         ItemRequestDto itemDto = ItemRequestDto.builder()
                 .name("Test")
                 .description("test test")

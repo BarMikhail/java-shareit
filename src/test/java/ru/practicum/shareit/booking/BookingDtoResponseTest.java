@@ -21,7 +21,7 @@ class BookingDtoResponseTest {
     private JacksonTester<BookingDtoResponse> jacksonTester;
 
     @Test
-    void testSerialize() throws Exception {
+    void bookingDtoResponseTest() throws Exception {
         BookerDto bookerDto = BookerDto.builder()
                 .id(1L)
                 .build();

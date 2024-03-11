@@ -15,7 +15,7 @@ class CommentRequestDtoTest {
     private JacksonTester<CommentRequestDto> json;
 
     @Test
-    void testUserDto() throws Exception {
+    void commentRequestDtoTest() throws Exception {
         CommentRequestDto bookerDto = CommentRequestDto.builder()
                 .text("test")
                 .build();

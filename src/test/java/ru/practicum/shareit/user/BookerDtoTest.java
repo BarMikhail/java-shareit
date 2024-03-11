@@ -16,7 +16,7 @@ class BookerDtoTest {
     private JacksonTester<BookerDto> json;
 
     @Test
-    void testUserDto() throws Exception {
+    void bookerDtoTest() throws Exception {
         BookerDto bookerDto = BookerDto.builder()
                 .id(1L)
                 .build();

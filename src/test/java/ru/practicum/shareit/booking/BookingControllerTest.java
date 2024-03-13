@@ -11,6 +11,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.booking.controller.BookingController;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoResponse;
+import ru.practicum.shareit.booking.model.BookingState;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -19,6 +20,7 @@ import ru.practicum.shareit.user.dto.UserDto;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.*;
@@ -26,7 +28,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 //import static org.springframework.mock.http.server.reactive.MockServerHttpRequest.post;
 
@@ -95,7 +97,7 @@ class BookingControllerTest {
 
 
     @Test
-    void createBookingRequest() throws Exception {
+    void createBookingRequestTest() throws Exception {
         when(bookingService.createBookingRequest(any(BookingDto.class), anyLong())).thenReturn(firstBookingDto);
 
         mvc.perform(post("/bookings")
@@ -114,18 +116,75 @@ class BookingControllerTest {
     }
 
     @Test
-    void changeBookingStatus() {
+    void changeBookingStatusTest() throws Exception {
+        when(bookingService.updateBookingStatusByOwner(anyLong(), anyLong(), anyBoolean())).thenReturn(firstBookingDto);
+
+        mvc.perform(patch("/bookings/{bookingId}", 1)
+                        .param("approved", "true")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header(X_SHARER_USER_ID, 1))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(firstBookingDto.getId()), Long.class))
+                .andExpect(jsonPath("$.status", is(firstBookingDto.getStatus().toString()), BookingStatus.class))
+                .andExpect(jsonPath("$.booker.id", is(firstBookingDto.getBooker().getId()), Long.class))
+                .andExpect(jsonPath("$.item.id", is(firstBookingDto.getItem().getId()), Long.class));
+
+        verify(bookingService, times(1)).updateBookingStatusByOwner(1L, 1L, true);
     }
 
     @Test
-    void getBookingDetails() {
+    void getBookingDetailsTest() throws Exception {
+
+        when(bookingService.getBookingDetails(anyLong(), anyLong())).thenReturn(firstBookingDto);
+
+        mvc.perform(get("/bookings/{bookingId}", 1)
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header(X_SHARER_USER_ID, 1))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(firstBookingDto.getId()), Long.class))
+                .andExpect(jsonPath("$.status", is(firstBookingDto.getStatus().toString()), BookingStatus.class))
+                .andExpect(jsonPath("$.booker.id", is(firstBookingDto.getBooker().getId()), Long.class))
+                .andExpect(jsonPath("$.item.id", is(firstBookingDto.getItem().getId()), Long.class));
+
+        verify(bookingService, times(1)).getBookingDetails(1L, 1L);
+
     }
 
     @Test
-    void getAllByBookings() {
+    void getAllByBookingsTest() throws Exception {
+        when(bookingService.getAllBooking(any(BookingState.class), anyLong(), anyInt(), anyInt())).thenReturn(List.of(firstBookingDto, secondBookingDto));
+
+        mvc.perform(get("/bookings")
+                        .param("state", "ALL")
+                        .param("from", String.valueOf(0))
+                        .param("size", String.valueOf(10))
+                        .header(X_SHARER_USER_ID, 1))
+                .andExpect(status().isOk())
+                .andExpect(content().json(mapper.writeValueAsString(List.of(firstBookingDto, secondBookingDto))));
+
+
+        verify(bookingService, times(1)).getAllBooking(BookingState.ALL, 1L, 0, 10);
+
     }
 
     @Test
-    void getAllByOwner() {
+    void getAllByOwnerTest() throws Exception {
+        when(bookingService.getAllBookingByOwner(any(BookingState.class), anyLong(), anyInt(), anyInt())).thenReturn(List.of(firstBookingDto, secondBookingDto));
+
+        mvc.perform(get("/bookings/owner")
+                        .param("state", "ALL")
+                        .param("from", String.valueOf(0))
+                        .param("size", String.valueOf(10))
+                        .header(X_SHARER_USER_ID, 1))
+                .andExpect(status().isOk())
+                .andExpect(content().json(mapper.writeValueAsString(List.of(firstBookingDto, secondBookingDto))));
+
+
+        verify(bookingService, times(1)).getAllBookingByOwner(BookingState.ALL, 1L, 0, 10);
+
     }
 }

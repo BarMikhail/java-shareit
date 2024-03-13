@@ -15,19 +15,14 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoBooking;
 import ru.practicum.shareit.item.dto.ItemRequestDto;
 import ru.practicum.shareit.item.service.ItemService;
-import ru.practicum.shareit.request.model.ItemRequest;
-import ru.practicum.shareit.user.model.User;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.when;
 import static org.mockito.ArgumentMatchers.any;
-
-
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -43,7 +38,6 @@ class ItemControllerTest {
     @Autowired
     private MockMvc mvc;
 
-    //    private User user;
     private ItemRequestDto itemRequestDto;
     private CommentRequestDto commentRequestDto;
     private ItemDto firstItemDto;
@@ -57,15 +51,6 @@ class ItemControllerTest {
 
     @BeforeEach
     void beforeEach() {
-
-//
-//        user = User.builder()
-//                .id(1L)
-//                .name("Test")
-//                .email("test@ya.ru")
-//                .build();
-
-
         commentRequestDto = CommentRequestDto.builder()
                 .text("test")
                 .build();
@@ -188,7 +173,7 @@ class ItemControllerTest {
     @Test
     void getAllItemByUser() throws Exception {
 
-        when(itemService.getAllItemByOwnerId(anyLong(), anyInt(),anyInt())).thenReturn(List.of(firstItemDtoBooking,secondItemDtoBooking));
+        when(itemService.getAllItemByOwnerId(anyLong(), anyInt(), anyInt())).thenReturn(List.of(firstItemDtoBooking, secondItemDtoBooking));
 
         mvc.perform(get("/items")
                         .param("from", String.valueOf(0))
@@ -198,16 +183,16 @@ class ItemControllerTest {
                         .accept(MediaType.APPLICATION_JSON)
                         .header(X_SHARER_USER_ID, 1L))
                 .andExpect(status().isOk())
-                .andExpect(content().json(mapper.writeValueAsString(List.of(firstItemDtoBooking,secondItemDtoBooking))));
+                .andExpect(content().json(mapper.writeValueAsString(List.of(firstItemDtoBooking, secondItemDtoBooking))));
 
 
-        verify(itemService, times(1)).getAllItemByOwnerId(1L, 0,10);
+        verify(itemService, times(1)).getAllItemByOwnerId(1L, 0, 10);
 
     }
 
     @Test
-    void searchItems() throws Exception{
-        when(itemService.searchItems(anyString(), anyInt(), anyInt())).thenReturn(List.of(firstItemDto,secondItemDto));
+    void searchItems() throws Exception {
+        when(itemService.searchItems(anyString(), anyInt(), anyInt())).thenReturn(List.of(firstItemDto, secondItemDto));
 
         mvc.perform(get("/items/search")
                         .param("text", "test")
@@ -217,7 +202,7 @@ class ItemControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().json(mapper.writeValueAsString(List.of(firstItemDto,secondItemDto))));
+                .andExpect(content().json(mapper.writeValueAsString(List.of(firstItemDto, secondItemDto))));
 
         verify(itemService, times(1)).searchItems("test", 0, 10);
 

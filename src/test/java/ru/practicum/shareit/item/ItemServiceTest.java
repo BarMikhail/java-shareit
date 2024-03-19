@@ -19,6 +19,7 @@ import ru.practicum.shareit.comment.repository.CommentRepository;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoBooking;
 import ru.practicum.shareit.item.dto.ItemRequestDto;
+import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.item.service.ItemServiceImpl;
@@ -140,10 +141,56 @@ class ItemServiceTest {
 
     @Test
     void updateItem() {
+        Item updateItem = Item.builder()
+                .id(1L)
+                .name("test update")
+                .description("tes update text")
+                .owner(user)
+                .available(false)
+                .build();
+
+        when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(user));
+        when(itemRepository.findById(anyLong())).thenReturn(Optional.ofNullable(updateItem));
+
+        ItemDto update = itemService.updateItem(1L, ItemMapper.toItemDTO(updateItem) ,1L);
+
+        assertEquals("test update",update.getName());
+        assertEquals("tes update text",update.getDescription());
     }
 
     @Test
     void getItemById() {
+
+//        when(itemRepository.findById(1L)).thenReturn(Optional.of(item));
+//        when(commentRepository.findCommentsByItemId(1L)).thenReturn(Collections.singletonList(comment));
+//        when(bookingRepository.findFirstByItemIdAndStatusAndStartDateBeforeOrderByStartDateDesc(
+//                1L, BookingStatus.APPROVED, LocalDateTime.now()
+//        )).thenReturn(Optional.of(booking));
+//        when(bookingRepository.findFirstByItemIdAndStatusAndStartDateAfterOrderByStartDateAsc(
+//                1L, BookingStatus.APPROVED, LocalDateTime.now()
+//        )).thenReturn(Optional.empty());
+//
+//        ItemDtoBooking result = itemService.getItemById(item.getId(), user.getId());
+//
+//        // Assert
+//        assertNotNull(result);
+//        // остальные проверки
+
+        ItemDtoBooking itemDto = ItemDtoBooking.builder()
+                .id(1L)
+                .name("test")
+                .description("test test")
+                .available(true)
+                .comments(Collections.emptyList())
+                .build();
+
+
+//        when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(user));
+        when(itemRepository.findById(anyLong())).thenReturn(Optional.ofNullable(item));
+
+        ItemDtoBooking result = itemService.getItemById(1L,1L);
+
+        assertEquals(itemDto,result);
     }
 
     @Test

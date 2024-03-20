@@ -5,9 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -17,24 +15,22 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingState;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
-import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.booking.service.BookingServiceImp;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
-import ru.practicum.shareit.user.dto.BookerDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -54,15 +50,19 @@ class BookingServiceTest {
     private UserRepository userRepository;
 
     private User user;
-    private User user2;
+//    private User user2;
     private Item item;
     private Booking booking;
     private ItemDto itemDto;
     private BookingDto bookingDto;
+    private Integer from;
+    private Integer size;
 
 
     @BeforeEach
     void beforeEach() {
+        from = 0;
+        size = 10;
 
         user = User.builder()
                 .id(1L)
@@ -70,11 +70,11 @@ class BookingServiceTest {
                 .email("test@ya.ru")
                 .build();
 
-        user2 = User.builder()
-                .id(2L)
-                .name("Test")
-                .email("test@ya.ru")
-                .build();
+//        user2 = User.builder()
+//                .id(2L)
+//                .name("Test")
+//                .email("test@ya.ru")
+//                .build();
 
         item = Item.builder()
                 .id(1L)
@@ -90,7 +90,6 @@ class BookingServiceTest {
                 .description("test test")
                 .available(true)
                 .owner(1L)
-                .requestId(1L)
                 .build();
 
         booking = Booking.builder()
@@ -115,13 +114,13 @@ class BookingServiceTest {
         when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(user));
         when(itemRepository.findById(anyLong())).thenReturn(Optional.ofNullable(item));
         when(bookingRepository.save(any(Booking.class)))
-                .thenReturn(BookingMapper.toBooking(bookingDto,item,user));
+                .thenReturn(BookingMapper.toBooking(bookingDto, item, user));
 
-        BookingDtoResponse bookingDtoResponse = bookingService.createBookingRequest(bookingDto,2L);
+        BookingDtoResponse bookingDtoResponse = bookingService.createBookingRequest(bookingDto, 2L);
 
         assertNotNull(bookingDtoResponse);
-        assertEquals(bookingDtoResponse.getItem().getId(),item.getId());
-        assertEquals(bookingDtoResponse.getBooker().getId(),user.getId());
+        assertEquals(bookingDtoResponse.getItem().getId(), item.getId());
+        assertEquals(bookingDtoResponse.getBooker().getId(), user.getId());
 
         verify(bookingRepository, times(1)).save(any(Booking.class));
 
@@ -133,11 +132,11 @@ class BookingServiceTest {
         when(bookingRepository.findById(anyLong())).thenReturn(Optional.ofNullable(booking));
         when(bookingRepository.save(any(Booking.class))).thenReturn(booking);
 
-        BookingDtoResponse result = bookingService.updateBookingStatusByOwner(1L,1L,true);
+        BookingDtoResponse result = bookingService.updateBookingStatusByOwner(1L, 1L, true);
 
-        assertEquals(BookingStatus.APPROVED,result.getStatus());
+        assertEquals(BookingStatus.APPROVED, result.getStatus());
 
-        verify(bookingRepository,times(1)).save(any(Booking.class));
+        verify(bookingRepository, times(1)).save(any(Booking.class));
     }
 
     @Test
@@ -147,105 +146,199 @@ class BookingServiceTest {
         when(itemRepository.findById(anyLong())).thenReturn(Optional.ofNullable(item));
         when(bookingRepository.findById(anyLong())).thenReturn(Optional.ofNullable(booking));
 
-        BookingDtoResponse result = bookingService.getBookingDetails(1L,1L);
+        BookingDtoResponse result = bookingService.getBookingDetails(1L, 1L);
 
-        assertEquals(b,result);
+        assertEquals(b, result);
 
-        verify(bookingRepository,times(1)).findById(anyLong());
+        verify(bookingRepository, times(1)).findById(anyLong());
 
     }
 
     @Test
     void getAllBooking() {
+        List<BookingDtoResponse> expectedBookingsDtoOut = List.of(BookingMapper.toBookingResponse(booking, itemDto));
+
+        when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(user));
+        when(bookingRepository.findAllByBookerId(anyLong(), any(Pageable.class))).thenReturn(List.of(booking));
+
+        List<BookingDtoResponse> result = bookingService.getAllBooking(BookingState.ALL, 1L, from, size);
+
+        assertEquals(expectedBookingsDtoOut, result);
+
+    }
+
+    @Test
+    void getAllBooking123() {
+        List<BookingDtoResponse> expectedBookingsDtoOut = List.of(BookingMapper.toBookingResponse(booking, itemDto));
+
+        when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(user));
+        when(bookingRepository.findAllByBookerIdAndStartDateBeforeAndEndDateAfter(anyLong(),
+                any(LocalDateTime.class), any(LocalDateTime.class), any(Pageable.class)))
+                .thenReturn(List.of(booking));
+
+        List<BookingDtoResponse> result = bookingService.getAllBooking(BookingState.CURRENT, 1L, from, size);
+
+        assertEquals(expectedBookingsDtoOut, result);
+
+    }
+
+    @Test
+    void getAllBooking1244() {
+        List<BookingDtoResponse> expectedBookingsDtoOut = List.of(BookingMapper.toBookingResponse(booking, itemDto));
+
+        when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(user));
+        when(bookingRepository.findAllByBookerIdAndEndDateBefore(anyLong(),
+                any(LocalDateTime.class), any(Pageable.class)))
+                .thenReturn(List.of(booking));
+
+        List<BookingDtoResponse> result = bookingService.getAllBooking(BookingState.PAST, 1L, from, size);
+
+        assertEquals(expectedBookingsDtoOut, result);
+
+    }
+
+
+    @Test
+    void getAllBooking14354() {
+        List<BookingDtoResponse> expectedBookingsDtoOut = List.of(BookingMapper.toBookingResponse(booking, itemDto));
+
+        when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(user));
+        when(bookingRepository.findAllByBookerIdAndStartDateAfter(anyLong(),
+                any(LocalDateTime.class), any(Pageable.class)))
+                .thenReturn(List.of(booking));
+
+        List<BookingDtoResponse> result = bookingService.getAllBooking(BookingState.FUTURE, 1L, from, size);
+
+        assertEquals(expectedBookingsDtoOut, result);
+
+    }
+
+    @Test
+    void getAllBooking354() {
+        List<BookingDtoResponse> expectedBookingsDtoOut = List.of(BookingMapper.toBookingResponse(booking, itemDto));
+
+        when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(user));
+        when(bookingRepository.findAllByBookerIdAndStatus(anyLong(), any(BookingStatus.class), any(Pageable.class)))
+                .thenReturn(List.of(booking));
+
+        List<BookingDtoResponse> result = bookingService.getAllBooking(BookingState.WAITING, 1L, from, size);
+
+        assertEquals(expectedBookingsDtoOut, result);
+
+    }
+
+    @Test
+    void getAllBooking856() {
+        List<BookingDtoResponse> expectedBookingsDtoOut = List.of(BookingMapper.toBookingResponse(booking, itemDto));
+
+        when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(user));
+        when(bookingRepository.findAllByBookerIdAndStatus(anyLong(), any(BookingStatus.class), any(Pageable.class)))
+                .thenReturn(List.of(booking));
+
+        List<BookingDtoResponse> result = bookingService.getAllBooking(BookingState.REJECTED, 1L, from, size);
+
+        assertEquals(expectedBookingsDtoOut, result);
+
     }
 
     @Test
     void getAllBookingByOwner() {
+
+        List<BookingDtoResponse> expectedBookingsDtoOut = List.of(BookingMapper.toBookingResponse(booking, itemDto));
+
+        when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(user));
+        when(bookingRepository.findAllByItemOwnerId(anyLong(), any(Sort.class))).thenReturn(List.of(booking));
+        when(bookingRepository.findAllByItemOwnerId(anyLong(), any(Pageable.class)))
+                .thenReturn(List.of(booking));
+
+        List<BookingDtoResponse> result = bookingService.getAllBookingByOwner(BookingState.ALL, 1L, from, size);
+
+        assertEquals(expectedBookingsDtoOut, result);
     }
 
     @Test
-    void getAllBooking_ShouldReturnListOfBookingDtoResponse_ForAllStates() {
-        // Arrange
-//        Long userId = 1L;
-        Integer from = 0;
-        Integer size = 10;
+    void getAllBookingByOwner1() {
 
-        Pageable pageable = PageRequest.of(from / size, size, Sort.by(Sort.Direction.DESC, "startDate"));
+        List<BookingDtoResponse> expectedBookingsDtoOut = List.of(BookingMapper.toBookingResponse(booking, itemDto));
 
-        // Setting up mock behavior for each state
-//        when(userRepository.existsById(anyLong())).thenReturn(true);
         when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(user));
+        when(bookingRepository.findAllByItemOwnerId(anyLong(), any(Sort.class)))
+                .thenReturn(List.of(booking));
+        when(bookingRepository.findAllByItemOwnerIdAndStartDateBeforeAndEndDateAfter(anyLong(),
+                any(LocalDateTime.class), any(LocalDateTime.class), any(Pageable.class)))
+                .thenReturn(List.of(booking));
 
-        // Case: ALL
-        List<Booking> allBookings = Collections.singletonList(booking);
-        when(bookingRepository.findAllByBookerId(anyLong(), any(Pageable.class))).thenReturn(allBookings);
+        List<BookingDtoResponse> result = bookingService.getAllBookingByOwner(BookingState.CURRENT, 1L, from, size);
 
-        // Case: CURRENT
-        List<Booking> currentBookings = Collections.singletonList(booking);
-        when(bookingRepository.findAllByBookerIdAndStartDateBeforeAndEndDateAfter(
-                anyLong(),
-                LocalDateTime.now(),
-                LocalDateTime.now(),
-                any(Pageable.class)))
-                .thenReturn(currentBookings);
-//
-//        // Case: PAST
-//        List<Booking> pastBookings = Collections.singletonList(booking);
-//        when(bookingRepository.findAllByBookerIdAndEndDateBefore(anyLong(), LocalDateTime.now(), any(Pageable.class)))
-//                .thenReturn(pastBookings);
-//
-//        // Case: FUTURE
-//        List<Booking> futureBookings = Collections.singletonList(booking);
-//        when(bookingRepository.findAllByBookerIdAndStartDateAfter(anyLong(), LocalDateTime.now(), any(Pageable.class)))
-//                .thenReturn(futureBookings);
-//
-//        // Case: WAITING
-//        List<Booking> waitingBookings = Collections.singletonList(booking);
-//        when(bookingRepository.findAllByBookerIdAndStatus(anyLong(), BookingStatus.WAITING, any(Pageable.class)))
-//                .thenReturn(waitingBookings);
-//
-//        // Case: REJECTED
-//        List<Booking> rejectedBookings = Collections.singletonList(booking);
-//        when(bookingRepository.findAllByBookerIdAndStatus(anyLong(), BookingStatus.REJECTED, any(Pageable.class)))
-//                .thenReturn(rejectedBookings);
-
-        // Act and Assert for each state
-
-        // Case: ALL
-        List<BookingDtoResponse> allBookingsResponse = bookingService.getAllBooking(BookingState.ALL, user.getId(), from, size);
-        assertNotNull(allBookingsResponse);
-        assertEquals(allBookings.size(), allBookingsResponse.size());
-        // Additional assertions for allBookingsResponse
-//
-        // Case: CURRENT
-        List<BookingDtoResponse> currentBookingsResponse = bookingService.getAllBooking(BookingState.CURRENT, user.getId(), from, size);
-        assertNotNull(currentBookingsResponse);
-        assertEquals(currentBookings.size(), currentBookingsResponse.size());
-        // Additional assertions for currentBookingsResponse
-//
-//        // Case: PAST
-//        List<BookingDtoResponse> pastBookingsResponse = bookingService.getAllBooking(BookingState.PAST, user.getId(), from, size);
-//        assertNotNull(pastBookingsResponse);
-//        assertEquals(pastBookings.size(), pastBookingsResponse.size());
-//        // Additional assertions for pastBookingsResponse
-//
-//        // Case: FUTURE
-//        List<BookingDtoResponse> futureBookingsResponse = bookingService.getAllBooking(BookingState.FUTURE, user.getId(), from, size);
-//        assertNotNull(futureBookingsResponse);
-//        assertEquals(futureBookings.size(), futureBookingsResponse.size());
-//        // Additional assertions for futureBookingsResponse
-//
-//        // Case: WAITING
-//        List<BookingDtoResponse> waitingBookingsResponse = bookingService.getAllBooking(BookingState.WAITING, user.getId(), from, size);
-//        assertNotNull(waitingBookingsResponse);
-//
-//        assertEquals(waitingBookings.size(), waitingBookingsResponse.size());
-//        // Additional assertions for waitingBookingsResponse
-//
-//        // Case: REJECTED
-//        List<BookingDtoResponse> rejectedBookingsResponse = bookingService.getAllBooking(BookingState.REJECTED, user.getId(), from, size);
-//        assertNotNull(rejectedBookingsResponse);
-//        assertEquals(rejectedBookings.size(), rejectedBookingsResponse.size());
-//        // Additional assertions for rejectedBookingsResponse
+        assertEquals(expectedBookingsDtoOut, result);
     }
+
+    @Test
+    void getAllBookingByOwner2() {
+
+        List<BookingDtoResponse> expectedBookingsDtoOut = List.of(BookingMapper.toBookingResponse(booking, itemDto));
+
+        when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(user));
+        when(bookingRepository.findAllByItemOwnerId(anyLong(), any(Sort.class)))
+                .thenReturn(List.of(booking));
+        when(bookingRepository.findAllByItemOwnerIdAndEndDateBefore(anyLong(),
+                any(LocalDateTime.class), any(Pageable.class)))
+                .thenReturn(List.of(booking));
+
+        List<BookingDtoResponse> result = bookingService.getAllBookingByOwner(BookingState.PAST, 1L, from, size);
+
+        assertEquals(expectedBookingsDtoOut, result);
+    }
+
+    @Test
+    void getAllBookingByOwner3() {
+
+        List<BookingDtoResponse> expectedBookingsDtoOut = List.of(BookingMapper.toBookingResponse(booking, itemDto));
+
+        when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(user));
+        when(bookingRepository.findAllByItemOwnerId(anyLong(), any(Sort.class)))
+                .thenReturn(List.of(booking));
+        when(bookingRepository.findAllByItemOwnerIdAndStartDateAfter(anyLong(),
+                any(LocalDateTime.class), any(Pageable.class)))
+                .thenReturn(List.of(booking));
+
+        List<BookingDtoResponse> result = bookingService.getAllBookingByOwner(BookingState.FUTURE, 1L, from, size);
+
+        assertEquals(expectedBookingsDtoOut, result);
+    }
+
+    @Test
+    void getAllBookingByOwner4() {
+
+        List<BookingDtoResponse> expectedBookingsDtoOut = List.of(BookingMapper.toBookingResponse(booking, itemDto));
+
+        when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(user));
+        when(bookingRepository.findAllByItemOwnerId(anyLong(), any(Sort.class)))
+                .thenReturn(List.of(booking));
+        when(bookingRepository.findAllByItemOwnerIdAndStatus(anyLong(),
+                any(BookingStatus.class), any(Pageable.class)))
+                .thenReturn(List.of(booking));
+
+        List<BookingDtoResponse> result = bookingService.getAllBookingByOwner(BookingState.WAITING, 1L, from, size);
+
+        assertEquals(expectedBookingsDtoOut, result);
+    }
+
+    @Test
+    void getAllBookingByOwner5() {
+
+        List<BookingDtoResponse> expectedBookingsDtoOut = List.of(BookingMapper.toBookingResponse(booking, itemDto));
+
+        when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(user));
+        when(bookingRepository.findAllByItemOwnerId(anyLong(), any(Sort.class)))
+                .thenReturn(List.of(booking));
+        when(bookingRepository.findAllByItemOwnerIdAndStatus(anyLong(),
+                any(BookingStatus.class), any(Pageable.class)))
+                .thenReturn(List.of(booking));
+
+        List<BookingDtoResponse> result = bookingService.getAllBookingByOwner(BookingState.REJECTED, 1L, from, size);
+
+        assertEquals(expectedBookingsDtoOut, result);
+    }
+
 }

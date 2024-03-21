@@ -16,7 +16,7 @@ class ItemDtoTest {
     private JacksonTester<ItemDto> json;
 
     @Test
-    void ItemDtoTest() throws Exception {
+    void itemDtoTest() throws Exception {
         ItemDto itemDto = ItemDto.builder()
                 .id(1)
                 .name("Test")

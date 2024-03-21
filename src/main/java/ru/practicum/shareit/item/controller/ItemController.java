@@ -25,6 +25,8 @@ import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
+import static ru.practicum.shareit.additionally.Constant.X_SHARER_USER_ID;
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -32,8 +34,6 @@ import java.util.List;
 @Validated
 public class ItemController {
     private final ItemService itemService;
-
-    private static final String X_SHARER_USER_ID = "X-Sharer-User-Id";
 
     @PostMapping
     public ItemDto addItem(@RequestHeader(X_SHARER_USER_ID) long userId,

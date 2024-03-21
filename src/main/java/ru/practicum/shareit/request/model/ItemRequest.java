@@ -33,5 +33,5 @@ public class ItemRequest {
     private LocalDateTime created;
 
     @OneToMany(mappedBy = "itemRequest")
-    List<Item> items;
+    private List<Item> items;
 }

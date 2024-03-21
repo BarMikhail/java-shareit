@@ -27,6 +27,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static ru.practicum.shareit.additionally.Constant.X_SHARER_USER_ID;
 
 @WebMvcTest(controllers = BookingController.class)
 class BookingControllerTest {
@@ -45,8 +46,6 @@ class BookingControllerTest {
     private BookingDto bookingDto;
     private BookingDtoResponse firstBookingDto;
     private BookingDtoResponse secondBookingDto;
-    private static final String X_SHARER_USER_ID = "X-Sharer-User-Id";
-
 
     @BeforeEach
     void beforeEach() {
@@ -108,6 +107,17 @@ class BookingControllerTest {
                 .andExpect(jsonPath("$.item.id", is(firstBookingDto.getItem().getId()), Long.class));
 
         verify(bookingService, times(1)).createBookingRequest(bookingDto, 1L);
+    }
+
+    @Test
+    void createBookingRequest_InvalidDto_ReturnsBadRequest() throws Exception {
+        BookingDto invalidDto = BookingDto.builder().build();
+
+        mvc.perform(post("/bookings")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(X_SHARER_USER_ID, 1L)
+                        .content(mapper.writeValueAsString(invalidDto)))
+                .andExpect(status().isBadRequest());
     }
 
     @Test

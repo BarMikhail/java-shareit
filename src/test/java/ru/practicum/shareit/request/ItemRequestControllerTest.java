@@ -24,6 +24,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static ru.practicum.shareit.additionally.Constant.X_SHARER_USER_ID;
 
 @WebMvcTest(controllers = ItemRequestController.class)
 class ItemRequestControllerTest {
@@ -43,9 +44,6 @@ class ItemRequestControllerTest {
     private ItemRequestDtoOut secondItemRequestDto;
 
     private ItemPostDto itemPostDto;
-
-    private static final String X_SHARER_USER_ID = "X-Sharer-User-Id";
-
 
     @BeforeEach
     void beforeEach() {
@@ -82,6 +80,17 @@ class ItemRequestControllerTest {
                 .andExpect(jsonPath("$.description", is(firstItemRequestDto.getDescription()), String.class));
 
         verify(itemRequestService, times(1)).addItemRequest(1L, itemPostDto);
+    }
+
+    @Test
+    void addItemRequest_InvalidDto_ReturnsBadRequest() throws Exception {
+        ItemPostDto invalidDto = ItemPostDto.builder().build();
+
+        mvc.perform(post("/requests")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(X_SHARER_USER_ID, 1L)
+                        .content(mapper.writeValueAsString(invalidDto)))
+                .andExpect(status().isBadRequest());
     }
 
     @Test

@@ -14,6 +14,8 @@ import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
+import static ru.practicum.shareit.additionally.Constant.X_SHARER_USER_ID;
+
 @Slf4j
 @RestController
 @RequestMapping(path = "/requests")
@@ -21,8 +23,6 @@ import java.util.List;
 @Validated
 public class ItemRequestController {
     private final ItemRequestService itemRequestService;
-
-    private static final String X_SHARER_USER_ID = "X-Sharer-User-Id";
 
     @PostMapping
     public ItemRequestDtoOut addItemRequest(@RequestHeader(X_SHARER_USER_ID) long userId,
@@ -51,5 +51,4 @@ public class ItemRequestController {
         log.info("Вывод всего");
         return itemRequestService.getItemRequests(from, size, userId);
     }
-
 }

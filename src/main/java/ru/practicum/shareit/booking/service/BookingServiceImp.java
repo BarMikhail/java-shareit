@@ -63,7 +63,7 @@ public class BookingServiceImp implements BookingService {
         User owner = booking.getItem().getOwner();
 
         if (booking.getStatus().equals(BookingStatus.APPROVED) && approved) {
-            throw new InvalidDataException("Бронирование вещи одобрено");
+            throw new InvalidDataException("Бронирование вещи уже одобрено");
         }
         if (booking.getStatus().equals(BookingStatus.REJECTED) && !approved) {
             throw new InvalidDataException("Бронирование вещи отклонено");

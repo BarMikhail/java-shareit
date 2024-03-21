@@ -64,5 +64,4 @@ class BookingDtoResponseTest {
         assertThat(bookingDtoOutputSaved).extractingJsonPathStringValue("$.item.name").isEqualTo(itemDto.getName());
         assertThat(bookingDtoOutputSaved).extractingJsonPathStringValue("$.status").isEqualTo(bookingDtoResponse.getStatus().toString());
     }
-
 }

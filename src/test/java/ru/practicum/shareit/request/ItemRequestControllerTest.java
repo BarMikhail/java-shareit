@@ -18,7 +18,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
@@ -69,9 +68,8 @@ class ItemRequestControllerTest {
     }
 
     @Test
-    void addItemRequest() throws Exception{
-
-        when(itemRequestService.addItemRequest( anyLong(), any(ItemPostDto.class))).thenReturn(firstItemRequestDto);
+    void addItemRequestTest() throws Exception {
+        when(itemRequestService.addItemRequest(anyLong(), any(ItemPostDto.class))).thenReturn(firstItemRequestDto);
 
         mvc.perform(post("/requests")
                         .content(mapper.writeValueAsString(firstItemRequestDto))
@@ -84,12 +82,12 @@ class ItemRequestControllerTest {
                 .andExpect(jsonPath("$.description", is(firstItemRequestDto.getDescription()), String.class));
 
         verify(itemRequestService, times(1)).addItemRequest(1L, itemPostDto);
-
     }
 
     @Test
-    void getAllRequests() throws Exception {
-        when(itemRequestService.getItemRequests( anyInt(), anyInt(), anyLong())).thenReturn(List.of(firstItemRequestDto, secondItemRequestDto));
+    void getAllRequestsTest() throws Exception {
+        when(itemRequestService.getItemRequests(anyInt(), anyInt(), anyLong()))
+                .thenReturn(List.of(firstItemRequestDto, secondItemRequestDto));
 
         mvc.perform(get("/requests/all")
                         .param("from", String.valueOf(0))
@@ -101,11 +99,11 @@ class ItemRequestControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().json(mapper.writeValueAsString(List.of(firstItemRequestDto, secondItemRequestDto))));
 
-        verify(itemRequestService, times(1)).getItemRequests( 0, 10, 1L);
+        verify(itemRequestService, times(1)).getItemRequests(0, 10, 1L);
     }
 
     @Test
-    void getRequestById() throws Exception {
+    void getRequestByIdTest() throws Exception {
         when(itemRequestService.getItemRequestById(anyLong(), anyLong())).thenReturn(firstItemRequestDto);
 
         mvc.perform(get("/requests/{requestId}", firstItemRequestDto.getId())
@@ -122,8 +120,9 @@ class ItemRequestControllerTest {
     }
 
     @Test
-    void getItemRequests() throws Exception {
-        when(itemRequestService.getAllItemRequestsByUserId(anyLong())).thenReturn(List.of(firstItemRequestDto, secondItemRequestDto));
+    void getItemRequestsTest() throws Exception {
+        when(itemRequestService.getAllItemRequestsByUserId(anyLong()))
+                .thenReturn(List.of(firstItemRequestDto, secondItemRequestDto));
 
         mvc.perform(get("/requests")
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -134,6 +133,5 @@ class ItemRequestControllerTest {
                 .andExpect(content().json(mapper.writeValueAsString(List.of(firstItemRequestDto, secondItemRequestDto))));
 
         verify(itemRequestService, times(1)).getAllItemRequestsByUserId(1L);
-
     }
 }

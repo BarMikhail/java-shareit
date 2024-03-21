@@ -29,7 +29,6 @@ class ItemRequestMapperTest {
         assertNotNull(itemRequest);
 
         assertEquals(itemRequest.getDescription(), itemPostDto.getDescription());
-
     }
 
     @Test
@@ -64,8 +63,5 @@ class ItemRequestMapperTest {
         assertEquals(itemRequestDtoOut.getDescription(), itemRequest.getDescription());
         assertEquals(itemRequestDtoOut.getCreated(), itemRequest.getCreated());
         assertEquals(itemRequestDtoOut.getItems(), List.of(itemDto));
-
-
     }
-
 }

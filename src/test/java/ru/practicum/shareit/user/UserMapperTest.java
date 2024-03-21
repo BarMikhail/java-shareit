@@ -12,7 +12,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 class UserMapperTest {
     @Test
     void toUserTest() {
-
         UserDto userDto = UserDto.builder()
                 .id(1)
                 .name("Test")
@@ -30,7 +29,6 @@ class UserMapperTest {
 
     @Test
     void toUserDtoTest() {
-
         User user = User.builder()
                 .id(1L)
                 .name("Test")
@@ -49,7 +47,6 @@ class UserMapperTest {
 
     @Test
     void toBookerDtoTest() {
-
         User user = User.builder()
                 .id(1L)
                 .name("Test")

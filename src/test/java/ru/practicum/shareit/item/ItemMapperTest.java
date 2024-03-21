@@ -14,7 +14,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class ItemMapperTest {
 
@@ -29,7 +30,7 @@ class ItemMapperTest {
             .description("Test !test test")
             .build();
 
-    private Item item =Item.builder()
+    private Item item = Item.builder()
             .id(1L)
             .available(true)
             .description("test test")
@@ -40,8 +41,6 @@ class ItemMapperTest {
 
     @Test
     void toItemDtoTest() {
-
-
         ItemDto itemDto = ItemMapper.toItemDTO(item);
 
 
@@ -52,8 +51,6 @@ class ItemMapperTest {
         assertEquals(item.getDescription(), itemDto.getDescription());
         assertEquals(item.getAvailable(), itemDto.getAvailable());
         assertEquals(item.getItemRequest().getId(), itemDto.getRequestId());
-
-
     }
 
     @Test
@@ -80,7 +77,6 @@ class ItemMapperTest {
 
     @Test
     void toItemRequestTest() {
-
         ItemRequestDto itemRequestDto = ItemRequestDto.builder()
                 .name("Test")
                 .description("test test")
@@ -96,5 +92,4 @@ class ItemMapperTest {
         assertEquals(itemRequestDto.getAvailable(), toItemRequest.getAvailable());
         assertEquals(owner, toItemRequest.getOwner());
     }
-
 }

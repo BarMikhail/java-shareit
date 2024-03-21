@@ -88,7 +88,6 @@ class BookingControllerTest {
                 .item(itemDto)
                 .status(BookingStatus.WAITING)
                 .build();
-
     }
 
 
@@ -132,7 +131,6 @@ class BookingControllerTest {
 
     @Test
     void getBookingDetailsTest() throws Exception {
-
         when(bookingService.getBookingDetails(anyLong(), anyLong())).thenReturn(firstBookingDto);
 
         mvc.perform(get("/bookings/{bookingId}", 1)
@@ -147,7 +145,6 @@ class BookingControllerTest {
                 .andExpect(jsonPath("$.item.id", is(firstBookingDto.getItem().getId()), Long.class));
 
         verify(bookingService, times(1)).getBookingDetails(1L, 1L);
-
     }
 
     @Test
@@ -162,9 +159,7 @@ class BookingControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().json(mapper.writeValueAsString(List.of(firstBookingDto, secondBookingDto))));
 
-
         verify(bookingService, times(1)).getAllBooking(BookingState.ALL, 1L, 0, 10);
-
     }
 
     @Test
@@ -179,8 +174,6 @@ class BookingControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().json(mapper.writeValueAsString(List.of(firstBookingDto, secondBookingDto))));
 
-
         verify(bookingService, times(1)).getAllBookingByOwner(BookingState.ALL, 1L, 0, 10);
-
     }
 }

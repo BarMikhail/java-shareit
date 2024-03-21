@@ -51,7 +51,6 @@ class UserControllerTest {
                 .build();
     }
 
-
     @Test
     void createUserTest() throws Exception {
         when(userService.createUser(any(UserDto.class))).thenReturn(firstUserDto);
@@ -117,6 +116,5 @@ class UserControllerTest {
                 .andExpect(status().isOk());
 
         verify(userService, times(1)).deleteUser(1L);
-
     }
 }

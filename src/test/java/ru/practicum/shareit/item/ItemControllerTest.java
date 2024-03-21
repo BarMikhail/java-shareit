@@ -105,7 +105,7 @@ class ItemControllerTest {
 
 
     @Test
-    void addItem() throws Exception {
+    void addItemTest() throws Exception {
         when(itemService.addItem(anyLong(), any(ItemRequestDto.class))).thenReturn(firstItemDto);
 
         mvc.perform(post("/items")
@@ -121,14 +121,11 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$.available", is(firstItemDto.getAvailable()), Boolean.class))
                 .andExpect(jsonPath("$.requestId", is(firstItemDto.getRequestId()), Long.class));
 
-
         verify(itemService, times(1)).addItem(1L, itemRequestDto);
-
     }
 
     @Test
-    void updateItem() throws Exception {
-
+    void updateItemTest() throws Exception {
         when(itemService.updateItem(anyLong(), any(ItemDto.class), anyLong())).thenReturn(firstItemDto);
 
         mvc.perform(patch("/items/{itemId}", 1)
@@ -144,14 +141,11 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$.available", is(firstItemDto.getAvailable()), Boolean.class))
                 .andExpect(jsonPath("$.requestId", is(firstItemDto.getRequestId()), Long.class));
 
-
         verify(itemService, times(1)).updateItem(1L, firstItemDto, 1L);
-
     }
 
     @Test
-    void getItemById() throws Exception {
-
+    void getItemByIdTest() throws Exception {
         when(itemService.getItemById(anyLong(), anyLong())).thenReturn(firstItemDtoBooking);
 
         mvc.perform(get("/items/{itemId}", 1)
@@ -167,12 +161,10 @@ class ItemControllerTest {
 
 
         verify(itemService, times(1)).getItemById(1L, 1L);
-
     }
 
     @Test
-    void getAllItemByUser() throws Exception {
-
+    void getAllItemByUserTest() throws Exception {
         when(itemService.getAllItemByOwnerId(anyLong(), anyInt(), anyInt())).thenReturn(List.of(firstItemDtoBooking, secondItemDtoBooking));
 
         mvc.perform(get("/items")
@@ -185,9 +177,7 @@ class ItemControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().json(mapper.writeValueAsString(List.of(firstItemDtoBooking, secondItemDtoBooking))));
 
-
         verify(itemService, times(1)).getAllItemByOwnerId(1L, 0, 10);
-
     }
 
     @Test
@@ -205,13 +195,10 @@ class ItemControllerTest {
                 .andExpect(content().json(mapper.writeValueAsString(List.of(firstItemDto, secondItemDto))));
 
         verify(itemService, times(1)).searchItems("test", 0, 10);
-
-
     }
 
     @Test
     void createComment() throws Exception {
-
         when(itemService.createComment(any(CommentRequestDto.class), anyLong(), anyLong())).thenReturn(commentDto);
 
         mvc.perform(post("/items/{itemId}/comment", 1)
@@ -224,6 +211,5 @@ class ItemControllerTest {
                 .andExpect(content().json(mapper.writeValueAsString(commentDto)));
 
         verify(itemService, times(1)).createComment(commentRequestDto, 1L, 1L);
-
     }
 }

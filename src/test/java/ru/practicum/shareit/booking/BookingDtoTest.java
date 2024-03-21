@@ -24,7 +24,6 @@ class BookingDtoTest {
                 .end(LocalDateTime.now())
                 .build();
 
-
         JsonContent<BookingDto> result = json.write(bookingDto);
 
         assertThat(result).hasJsonPath("$.start");
@@ -35,5 +34,4 @@ class BookingDtoTest {
         assertThat(result).hasJsonPathValue("$.end");
         assertThat(result).extractingJsonPathNumberValue("$.itemId").isEqualTo(1);
     }
-
 }

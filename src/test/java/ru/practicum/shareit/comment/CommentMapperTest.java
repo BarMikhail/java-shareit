@@ -23,7 +23,6 @@ class CommentMapperTest {
         assertNotNull(comment);
 
         assertEquals(comment.getText(), commentRequestDto.getText());
-
     }
 
     @Test
@@ -47,6 +46,5 @@ class CommentMapperTest {
         assertEquals(comment.getText(), commentDto.getText());
         assertEquals(comment.getId(), commentDto.getId());
         assertEquals(user.getName(), commentDto.getAuthorName());
-
     }
 }

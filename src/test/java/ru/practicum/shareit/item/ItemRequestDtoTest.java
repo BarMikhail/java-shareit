@@ -38,5 +38,4 @@ class ItemRequestDtoTest {
         assertThat(itemDtoSaved).extractingJsonPathBooleanValue("$.available").isEqualTo(true);
         assertThat(itemDtoSaved).extractingJsonPathNumberValue("$.requestId").isEqualTo(1);
     }
-
 }

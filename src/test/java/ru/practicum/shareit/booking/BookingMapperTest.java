@@ -11,17 +11,15 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.model.ItemRequest;
-import ru.practicum.shareit.user.dto.BookerDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class BookingMapperTest {
-
-
 
     private User owner = User.builder()
             .id(1L)
@@ -34,7 +32,7 @@ class BookingMapperTest {
             .description("Looking for a balalaika")
             .build();
 
-    private Item item =Item.builder()
+    private Item item = Item.builder()
             .id(1L)
             .available(true)
             .description("test test")
@@ -49,7 +47,7 @@ class BookingMapperTest {
             .email("test@ya.ru")
             .build();
 
-    private Booking booking =Booking.builder().id(1L)
+    private Booking booking = Booking.builder().id(1L)
             .booker(owner)
             .item(item)
             .endDate(LocalDateTime.now())
@@ -65,7 +63,7 @@ class BookingMapperTest {
                 .end(LocalDateTime.now())
                 .build();
 
-        Booking booking = BookingMapper.toBooking(bookingDto,item,user);
+        Booking booking = BookingMapper.toBooking(bookingDto, item, user);
 
         assertNotNull(booking);
 
@@ -78,10 +76,9 @@ class BookingMapperTest {
 
     @Test
     void toBookingResponseTest() {
-
         ItemDto itemDto = ItemMapper.toItemDTO(item);
 
-        BookingDtoResponse bookingDtoResponse = BookingMapper.toBookingResponse(booking,itemDto);
+        BookingDtoResponse bookingDtoResponse = BookingMapper.toBookingResponse(booking, itemDto);
 
         assertNotNull(bookingDtoResponse);
 
@@ -91,12 +88,10 @@ class BookingMapperTest {
         assertEquals(booking.getStartDate(), bookingDtoResponse.getStart());
         assertEquals(booking.getEndDate(), bookingDtoResponse.getEnd());
         assertEquals(bookingDtoResponse.getStatus(), BookingStatus.WAITING);
-
     }
 
     @Test
     void toBookingOwnerDtoTest() {
-
         BookingOwnerDto bookingOwnerDto = BookingMapper.toBookingOwnerDto(booking);
 
         assertNotNull(bookingOwnerDto);
@@ -105,7 +100,5 @@ class BookingMapperTest {
         assertEquals(booking.getBooker().getId(), bookingOwnerDto.getBookerId());
         assertEquals(booking.getStartDate(), bookingOwnerDto.getStart());
         assertEquals(booking.getEndDate(), bookingOwnerDto.getEnd());
-
     }
-
 }

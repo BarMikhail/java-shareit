@@ -41,7 +41,6 @@ class ItemRequestServiceImplTest {
     private User user;
     private ItemRequest itemRequest;
     private ItemPostDto itemPostDto;
-    private ItemRequestDtoOut itemRequestDtoOut;
 
     @BeforeEach
     void beforeEach() {
@@ -61,17 +60,10 @@ class ItemRequestServiceImplTest {
         itemPostDto = ItemPostDto.builder()
                 .description("test test")
                 .build();
-
-        itemRequestDtoOut = ItemRequestDtoOut.builder()
-                .id(1L)
-                .description("test test")
-                .created(LocalDateTime.now())
-                .build();
     }
 
     @Test
-    void addItemRequest() {
-
+    void addItemRequestTest() {
         ItemRequestDtoOut itemRequestDtoOut = ItemRequestMapper.toItemRequestDtoOut(itemRequest);
 
         when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(user));
@@ -84,9 +76,7 @@ class ItemRequestServiceImplTest {
     }
 
     @Test
-    void getItemRequestById() {
-
-
+    void getItemRequestByIdTest() {
         ItemRequestDtoOut itemRequestDtoOut = ItemRequestMapper.toItemRequestDtoOut(itemRequest);
 
         when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(user));
@@ -98,8 +88,7 @@ class ItemRequestServiceImplTest {
     }
 
     @Test
-    void getAllItemRequestsByUserId() {
-
+    void getAllItemRequestsByUserIdTest() {
         List<ItemRequestDtoOut> itemRequestDtoOut = List.of(ItemRequestMapper.toItemRequestDtoOut(itemRequest));
 
         when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(user));
@@ -110,13 +99,10 @@ class ItemRequestServiceImplTest {
 
         assertNotNull(itemReq);
         assertEquals(itemRequestDtoOut, itemReq);
-
-
     }
 
     @Test
-    void getItemRequests() {
-
+    void getItemRequestsTest() {
         List<ItemRequestDtoOut> itemRequestDtoOut = List.of(ItemRequestMapper.toItemRequestDtoOut(itemRequest));
 
         when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(user));

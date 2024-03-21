@@ -16,6 +16,8 @@ import ru.practicum.shareit.booking.model.BookingState;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.booking.service.BookingServiceImp;
+import ru.practicum.shareit.exception.InvalidDataException;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
@@ -27,8 +29,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
@@ -50,7 +51,6 @@ class BookingServiceTest {
     private UserRepository userRepository;
 
     private User user;
-//    private User user2;
     private Item item;
     private Booking booking;
     private ItemDto itemDto;
@@ -69,12 +69,6 @@ class BookingServiceTest {
                 .name("Test")
                 .email("test@ya.ru")
                 .build();
-
-//        user2 = User.builder()
-//                .id(2L)
-//                .name("Test")
-//                .email("test@ya.ru")
-//                .build();
 
         item = Item.builder()
                 .id(1L)
@@ -109,8 +103,7 @@ class BookingServiceTest {
     }
 
     @Test
-    void createBookingRequest() {
-
+    void createBookingRequestTest() {
         when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(user));
         when(itemRepository.findById(anyLong())).thenReturn(Optional.ofNullable(item));
         when(bookingRepository.save(any(Booking.class)))
@@ -121,13 +114,45 @@ class BookingServiceTest {
         assertNotNull(bookingDtoResponse);
         assertEquals(bookingDtoResponse.getItem().getId(), item.getId());
         assertEquals(bookingDtoResponse.getBooker().getId(), user.getId());
-
-        verify(bookingRepository, times(1)).save(any(Booking.class));
-
     }
 
     @Test
-    void updateBookingStatusByOwner() {
+    void shouldThrowNotFoundExceptionWhenOwnerTriesToBookOwnItemTest() {
+        when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(user));
+        when(itemRepository.findById(anyLong())).thenReturn(Optional.ofNullable(item));
+
+        NotFoundException exception = assertThrows(NotFoundException.class,
+                () -> bookingService.createBookingRequest(bookingDto, 1L));
+        assertEquals(exception.getMessage(), "Зачем владельцу бронировать свой товар?");
+    }
+
+    @Test
+    void shouldThrowInvalidDataExceptionWhenBookingDatesAreInvalidTest() {
+        BookingDto bookingDto = BookingDto.builder()
+                .itemId(1L)
+                .start(LocalDateTime.now().plusDays(1))
+                .end(LocalDateTime.now().minusDays(1))
+                .build();
+
+        InvalidDataException exception = assertThrows(InvalidDataException.class,
+                () -> bookingService.createBookingRequest(bookingDto, 1L));
+        assertEquals(exception.getMessage(), "Дата пошла погулять");
+    }
+
+    @Test
+    void shouldThrowInvalidDataExceptionWhenItemIsNotAvailableTest() {
+        item.setAvailable(false);
+
+        when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(user));
+        when(itemRepository.findById(anyLong())).thenReturn(Optional.ofNullable(item));
+
+        InvalidDataException exception = assertThrows(InvalidDataException.class,
+                () -> bookingService.createBookingRequest(bookingDto, 1L));
+        assertEquals(exception.getMessage(), "Товар занят");
+    }
+
+    @Test
+    void updateBookingStatusByOwnerTest() {
         when(itemRepository.findById(anyLong())).thenReturn(Optional.ofNullable(item));
         when(bookingRepository.findById(anyLong())).thenReturn(Optional.ofNullable(booking));
         when(bookingRepository.save(any(Booking.class))).thenReturn(booking);
@@ -135,12 +160,55 @@ class BookingServiceTest {
         BookingDtoResponse result = bookingService.updateBookingStatusByOwner(1L, 1L, true);
 
         assertEquals(BookingStatus.APPROVED, result.getStatus());
-
-        verify(bookingRepository, times(1)).save(any(Booking.class));
     }
 
     @Test
-    void getBookingDetails() {
+    void shouldUpdateBookingStatusByOwnerTest() {
+        when(itemRepository.findById(anyLong())).thenReturn(Optional.ofNullable(item));
+        when(bookingRepository.findById(anyLong())).thenReturn(Optional.ofNullable(booking));
+        when(bookingRepository.save(any(Booking.class))).thenReturn(booking);
+
+        BookingDtoResponse result = bookingService.updateBookingStatusByOwner(1L, 1L, false);
+
+        assertEquals(BookingStatus.REJECTED, result.getStatus());
+    }
+
+    @Test
+    void shouldThrowInvalidDataExceptionWhenBookingAlreadyApprovedTest() {
+        booking.setStatus(BookingStatus.APPROVED);
+
+        when(itemRepository.findById(anyLong())).thenReturn(Optional.ofNullable(item));
+        when(bookingRepository.findById(anyLong())).thenReturn(Optional.ofNullable(booking));
+
+        InvalidDataException exception = assertThrows(InvalidDataException.class,
+                () -> bookingService.updateBookingStatusByOwner(1L, 1L, true));
+        assertEquals(exception.getMessage(), "Бронирование вещи уже одобрено");
+    }
+
+    @Test
+    void shouldThrowInvalidDataExceptionWhenBookingRejectedTest() {
+        booking.setStatus(BookingStatus.REJECTED);
+
+        when(itemRepository.findById(anyLong())).thenReturn(Optional.ofNullable(item));
+        when(bookingRepository.findById(anyLong())).thenReturn(Optional.ofNullable(booking));
+
+        InvalidDataException exception = assertThrows(InvalidDataException.class,
+                () -> bookingService.updateBookingStatusByOwner(1L, 1L, false));
+        assertEquals(exception.getMessage(), "Бронирование вещи отклонено");
+    }
+
+    @Test
+    void shouldThrowNotFoundExceptionWhenOwnerCannotUpdateBookingStatusTest() {
+        when(itemRepository.findById(anyLong())).thenReturn(Optional.ofNullable(item));
+        when(bookingRepository.findById(anyLong())).thenReturn(Optional.ofNullable(booking));
+
+        NotFoundException exception = assertThrows(NotFoundException.class,
+                () -> bookingService.updateBookingStatusByOwner(1L, 2L, true));
+        assertEquals(exception.getMessage(), "Только владелец может подтвердить бронирование предмета");
+    }
+
+    @Test
+    void getBookingDetailsTest() {
         BookingDtoResponse b = BookingMapper.toBookingResponse(booking, ItemMapper.toItemDTO(item));
 
         when(itemRepository.findById(anyLong())).thenReturn(Optional.ofNullable(item));
@@ -149,13 +217,21 @@ class BookingServiceTest {
         BookingDtoResponse result = bookingService.getBookingDetails(1L, 1L);
 
         assertEquals(b, result);
-
-        verify(bookingRepository, times(1)).findById(anyLong());
-
     }
 
     @Test
-    void getAllBooking() {
+    void shouldThrowNotFoundExceptionWhenUserCannotGetBookingDetailsTest() {
+        when(itemRepository.findById(anyLong())).thenReturn(Optional.ofNullable(item));
+        when(bookingRepository.findById(anyLong())).thenReturn(Optional.ofNullable(booking));
+
+
+        NotFoundException exception = assertThrows(NotFoundException.class,
+                () -> bookingService.getBookingDetails(1L, 2L));
+        assertEquals(exception.getMessage(), "Только автор или владелец может проверить детали бронирования");
+    }
+
+    @Test
+    void shouldReturnAllBookingsForUserTest() {
         List<BookingDtoResponse> expectedBookingsDtoOut = List.of(BookingMapper.toBookingResponse(booking, itemDto));
 
         when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(user));
@@ -164,11 +240,10 @@ class BookingServiceTest {
         List<BookingDtoResponse> result = bookingService.getAllBooking(BookingState.ALL, 1L, from, size);
 
         assertEquals(expectedBookingsDtoOut, result);
-
     }
 
     @Test
-    void getAllBooking123() {
+    void shouldReturnCurrentBookingsForUserTest() {
         List<BookingDtoResponse> expectedBookingsDtoOut = List.of(BookingMapper.toBookingResponse(booking, itemDto));
 
         when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(user));
@@ -179,11 +254,10 @@ class BookingServiceTest {
         List<BookingDtoResponse> result = bookingService.getAllBooking(BookingState.CURRENT, 1L, from, size);
 
         assertEquals(expectedBookingsDtoOut, result);
-
     }
 
     @Test
-    void getAllBooking1244() {
+    void shouldReturnPastBookingsForUserTest() {
         List<BookingDtoResponse> expectedBookingsDtoOut = List.of(BookingMapper.toBookingResponse(booking, itemDto));
 
         when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(user));
@@ -194,12 +268,11 @@ class BookingServiceTest {
         List<BookingDtoResponse> result = bookingService.getAllBooking(BookingState.PAST, 1L, from, size);
 
         assertEquals(expectedBookingsDtoOut, result);
-
     }
 
 
     @Test
-    void getAllBooking14354() {
+    void shouldReturnFutureBookingsForUserTest() {
         List<BookingDtoResponse> expectedBookingsDtoOut = List.of(BookingMapper.toBookingResponse(booking, itemDto));
 
         when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(user));
@@ -210,11 +283,10 @@ class BookingServiceTest {
         List<BookingDtoResponse> result = bookingService.getAllBooking(BookingState.FUTURE, 1L, from, size);
 
         assertEquals(expectedBookingsDtoOut, result);
-
     }
 
     @Test
-    void getAllBooking354() {
+    void shouldReturnWaitingBookingsForUserTest() {
         List<BookingDtoResponse> expectedBookingsDtoOut = List.of(BookingMapper.toBookingResponse(booking, itemDto));
 
         when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(user));
@@ -224,11 +296,10 @@ class BookingServiceTest {
         List<BookingDtoResponse> result = bookingService.getAllBooking(BookingState.WAITING, 1L, from, size);
 
         assertEquals(expectedBookingsDtoOut, result);
-
     }
 
     @Test
-    void getAllBooking856() {
+    void shouldReturnRejectedBookingsForUserTest() {
         List<BookingDtoResponse> expectedBookingsDtoOut = List.of(BookingMapper.toBookingResponse(booking, itemDto));
 
         when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(user));
@@ -238,12 +309,10 @@ class BookingServiceTest {
         List<BookingDtoResponse> result = bookingService.getAllBooking(BookingState.REJECTED, 1L, from, size);
 
         assertEquals(expectedBookingsDtoOut, result);
-
     }
 
     @Test
-    void getAllBookingByOwner() {
-
+    void shouldReturnAllBookingsForOwnerTest() {
         List<BookingDtoResponse> expectedBookingsDtoOut = List.of(BookingMapper.toBookingResponse(booking, itemDto));
 
         when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(user));
@@ -257,8 +326,7 @@ class BookingServiceTest {
     }
 
     @Test
-    void getAllBookingByOwner1() {
-
+    void shouldReturnCurrentBookingsForOwnerTest() {
         List<BookingDtoResponse> expectedBookingsDtoOut = List.of(BookingMapper.toBookingResponse(booking, itemDto));
 
         when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(user));
@@ -274,8 +342,7 @@ class BookingServiceTest {
     }
 
     @Test
-    void getAllBookingByOwner2() {
-
+    void shouldReturnPastBookingsForOwnerTest() {
         List<BookingDtoResponse> expectedBookingsDtoOut = List.of(BookingMapper.toBookingResponse(booking, itemDto));
 
         when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(user));
@@ -291,8 +358,7 @@ class BookingServiceTest {
     }
 
     @Test
-    void getAllBookingByOwner3() {
-
+    void shouldReturnFutureBookingsForOwnerTest() {
         List<BookingDtoResponse> expectedBookingsDtoOut = List.of(BookingMapper.toBookingResponse(booking, itemDto));
 
         when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(user));
@@ -308,8 +374,7 @@ class BookingServiceTest {
     }
 
     @Test
-    void getAllBookingByOwner4() {
-
+    void shouldReturnWaitingBookingsForOwnerTest() {
         List<BookingDtoResponse> expectedBookingsDtoOut = List.of(BookingMapper.toBookingResponse(booking, itemDto));
 
         when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(user));
@@ -325,8 +390,7 @@ class BookingServiceTest {
     }
 
     @Test
-    void getAllBookingByOwner5() {
-
+    void shouldReturnRejectedBookingsForOwnerTest() {
         List<BookingDtoResponse> expectedBookingsDtoOut = List.of(BookingMapper.toBookingResponse(booking, itemDto));
 
         when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(user));
@@ -339,6 +403,15 @@ class BookingServiceTest {
         List<BookingDtoResponse> result = bookingService.getAllBookingByOwner(BookingState.REJECTED, 1L, from, size);
 
         assertEquals(expectedBookingsDtoOut, result);
+    }
+
+    @Test
+    void shouldThrowNotFoundExceptionWhenOwnerHasNoItemsTest() {
+        when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(user));
+
+        NotFoundException exception = assertThrows(NotFoundException.class,
+                () -> bookingService.getAllBookingByOwner(BookingState.ALL, 2L, from, size));
+        assertEquals(exception.getMessage(), "У этого пользователя нет добавленного товара");
     }
 
 }

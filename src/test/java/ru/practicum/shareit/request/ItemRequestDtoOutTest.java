@@ -22,7 +22,6 @@ class ItemRequestDtoOutTest {
 
     @Test
     void itemRequestDtoOutTest() throws Exception {
-
         LocalDateTime created = LocalDateTime.of(2024, 3, 10, 0, 0);
 
         ItemDto itemDto = ItemDto.builder()
@@ -45,5 +44,4 @@ class ItemRequestDtoOutTest {
         assertThat(result).extractingJsonPathStringValue("$.description").isEqualTo("Test 1");
         assertThat(result).extractingJsonPathStringValue("$.created").isEqualTo(created.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
     }
-
 }

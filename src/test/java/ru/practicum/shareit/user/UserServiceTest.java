@@ -29,9 +29,8 @@ class UserServiceTest {
 
 
     private User firstUser;
-    private User seconfUser;
+    private User secondUser;
     private UserDto firstUserDto;
-    private UserDto secondUserDto;
 
     @BeforeEach
     void beforeEach() {
@@ -42,39 +41,36 @@ class UserServiceTest {
                 .build();
         firstUserDto = UserMapper.toUserDTO(firstUser);
 
-        seconfUser = User.builder()
+        secondUser = User.builder()
                 .id(2L)
                 .name("Proba")
                 .email("proba@ya.ru")
                 .build();
-
-        secondUserDto = UserMapper.toUserDTO(seconfUser);
     }
 
 
     @Test
-    void getAllUsersTest() {
-
-        when(userRepository.findAll()).thenReturn(List.of(firstUser, seconfUser));
+    void shouldGetAllUsersTest() {
+        when(userRepository.findAll()).thenReturn(List.of(firstUser, secondUser));
 
         List<UserDto> userList = userService.getAllUsers();
 
         assertEquals(userList.size(), 2);
         assertEquals(userList.get(0).getId(), firstUser.getId());
         assertEquals(userList.get(0).getEmail(), firstUser.getEmail());
-        assertEquals(userList.get(1).getId(), seconfUser.getId());
-        assertEquals(userList.get(1).getName(), seconfUser.getName());
+        assertEquals(userList.get(1).getId(), secondUser.getId());
+        assertEquals(userList.get(1).getName(), secondUser.getName());
     }
 
     @Test
     void getUserByIdTest() {
-        when(userRepository.findById(2L)).thenReturn(Optional.ofNullable(seconfUser));
+        when(userRepository.findById(2L)).thenReturn(Optional.ofNullable(secondUser));
 
         UserDto resultUser = userService.getUserById(2L);
 
-        assertEquals(resultUser.getId(), seconfUser.getId());
-        assertEquals(resultUser.getName(), seconfUser.getName());
-        assertEquals(resultUser.getEmail(), seconfUser.getEmail());
+        assertEquals(resultUser.getId(), secondUser.getId());
+        assertEquals(resultUser.getName(), secondUser.getName());
+        assertEquals(resultUser.getEmail(), secondUser.getEmail());
     }
 
     @Test
@@ -90,7 +86,6 @@ class UserServiceTest {
 
     @Test
     void updateUserTest() {
-
         when(userRepository.save(any(User.class))).thenReturn(firstUser);
         when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(firstUser));
 

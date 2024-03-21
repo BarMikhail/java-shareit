@@ -24,7 +24,5 @@ class CommentRequestDtoTest {
         assertThat(result).hasJsonPath("$.text");
 
         assertThat(result).extractingJsonPathStringValue("$.text").isEqualTo("test");
-
     }
-
 }

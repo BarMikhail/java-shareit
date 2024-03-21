@@ -25,5 +25,4 @@ class ItemPostDtoTest {
         Assertions.assertThat(result).hasJsonPath("$.description");
         Assertions.assertThat(result).extractingJsonPathStringValue("$.description").isEqualTo("Test !test test");
     }
-
 }

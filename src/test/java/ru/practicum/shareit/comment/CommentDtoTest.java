@@ -20,7 +20,6 @@ class CommentDtoTest {
 
     @Test
     void commentDtoTest() throws Exception {
-
         LocalDateTime created = LocalDateTime.of(2024, 3, 10, 0, 0);
 
         CommentDto commentDto = CommentDto.builder()
@@ -38,5 +37,4 @@ class CommentDtoTest {
         assertThat(result).extractingJsonPathStringValue("$.authorName").isEqualTo("test");
         assertThat(result).extractingJsonPathStringValue("$.created").isEqualTo(created.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
     }
-
 }

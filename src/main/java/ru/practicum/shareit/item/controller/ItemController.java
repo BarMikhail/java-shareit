@@ -21,16 +21,19 @@ import ru.practicum.shareit.item.dto.ItemDtoBooking;
 import ru.practicum.shareit.item.dto.ItemRequestDto;
 import ru.practicum.shareit.item.service.ItemService;
 
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
+
+import static ru.practicum.shareit.additionally.Constant.X_SHARER_USER_ID;
 
 @Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/items")
+@Validated
 public class ItemController {
     private final ItemService itemService;
-
-    private static final String X_SHARER_USER_ID = "X-Sharer-User-Id";
 
     @PostMapping
     public ItemDto addItem(@RequestHeader(X_SHARER_USER_ID) long userId,
@@ -55,15 +58,19 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemDtoBooking> getAllItemByUser(@RequestHeader(X_SHARER_USER_ID) long userId) {
+    public List<ItemDtoBooking> getAllItemByUser(@RequestHeader(X_SHARER_USER_ID) long userId,
+                                                 @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
+                                                 @Positive @RequestParam(defaultValue = "10") Integer size) {
         log.info("Просмотр владельцем всех вещей, id = {} пользователя", userId);
-        return itemService.getAllItemByOwnerId(userId);
+        return itemService.getAllItemByOwnerId(userId, from, size);
     }
 
     @GetMapping("/search")
-    public List<ItemDto> searchItems(@RequestParam String text) {
+    public List<ItemDto> searchItems(@RequestParam String text,
+                                     @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
+                                     @Positive @RequestParam(defaultValue = "10") Integer size) {
         log.info("Поиск вещи арендатором, text = {}", text);
-        return itemService.searchItems(text);
+        return itemService.searchItems(text, from, size);
     }
 
     @PostMapping("/{itemId}/comment")

@@ -3,6 +3,7 @@ package ru.practicum.shareit.user.dto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import ru.practicum.shareit.additionally.Create;
 import ru.practicum.shareit.additionally.Update;
 
@@ -13,6 +14,7 @@ import javax.validation.constraints.Size;
 @Builder
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class UserDto {
     private long id;
 

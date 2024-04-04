@@ -29,14 +29,17 @@ public class ItemController {
 
     @PostMapping
     public ItemDto addItem(@RequestHeader(X_SHARER_USER_ID) long userId,
-                           @Validated(Create.class) @RequestBody ItemRequestDto itemRequestDto) {
+//                           @Validated(Create.class)
+                           @RequestBody ItemRequestDto itemRequestDto) {
         log.info("Посмотрим что передается {}, и какому юзеру {}", itemRequestDto, userId);
         return itemService.addItem(userId, itemRequestDto);
     }
 
     @PatchMapping("/{itemId}")
     public ItemDto updateItem(@PathVariable("itemId") long itemId,
-                              @RequestBody @Validated(Update.class) ItemDto itemDto,
+                              @RequestBody
+//                              @Validated(Update.class)
+                              ItemDto itemDto,
                               @RequestHeader(X_SHARER_USER_ID) long userId) {
         log.info("Посмотрим что обновляется {}, id {} вещи, и у какого юзера {}", itemDto, itemId, userId);
         return itemService.updateItem(itemId, itemDto, userId);
@@ -71,7 +74,8 @@ public class ItemController {
 
     @PostMapping("/{itemId}/comment")
     public CommentDto createComment(@RequestHeader(X_SHARER_USER_ID) long userId,
-                                    @Validated(Create.class) @RequestBody CommentRequestDto commentRequestDto,
+//                                    @Validated(Create.class)
+                                    @RequestBody CommentRequestDto commentRequestDto,
                                     @PathVariable("itemId") long itemId) {
         log.info("Добавление нового отзыва {} об вещи {}", commentRequestDto, itemId);
         return itemService.createComment(commentRequestDto, userId, itemId);

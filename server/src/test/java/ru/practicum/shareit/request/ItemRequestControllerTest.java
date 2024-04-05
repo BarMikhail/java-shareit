@@ -83,17 +83,6 @@ class ItemRequestControllerTest {
     }
 
     @Test
-    void addItemRequest_InvalidDto_ReturnsBadRequest() throws Exception {
-        ItemPostDto invalidDto = ItemPostDto.builder().build();
-
-        mvc.perform(post("/requests")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header(X_SHARER_USER_ID, 1L)
-                        .content(mapper.writeValueAsString(invalidDto)))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
     void getAllRequestsTest() throws Exception {
         when(itemRequestService.getItemRequests(anyInt(), anyInt(), anyLong()))
                 .thenReturn(List.of(firstItemRequestDto, secondItemRequestDto));

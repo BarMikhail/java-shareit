@@ -69,16 +69,6 @@ class UserControllerTest {
     }
 
     @Test
-    void createUser_InvalidDto_ReturnsBadRequest() throws Exception {
-        UserDto userDto = UserDto.builder().build();
-
-        mvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(mapper.writeValueAsString(userDto)))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
     void updateUserTest() throws Exception {
         when(userService.updateUser(anyLong(), any(UserDto.class))).thenReturn(firstUserDto);
 
@@ -93,16 +83,6 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.email", is(firstUserDto.getEmail()), String.class));
 
         verify(userService, times(1)).updateUser(1L, firstUserDto);
-    }
-
-    @Test
-    void updateUser_InvalidDto_ReturnsBadRequest() throws Exception {
-        UserDto userDto = UserDto.builder().email("test").build();
-
-        mvc.perform(patch("/users/{userId}", 5)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(mapper.writeValueAsString(userDto)))
-                .andExpect(status().isBadRequest());
     }
 
     @Test

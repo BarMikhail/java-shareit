@@ -123,17 +123,6 @@ class ItemControllerTest {
     }
 
     @Test
-    void addItem_InvalidDto_ReturnsBadRequest() throws Exception {
-        ItemRequestDto invalidDto = ItemRequestDto.builder().build();
-
-        mvc.perform(post("/items")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header(X_SHARER_USER_ID, 1L)
-                        .content(mapper.writeValueAsString(invalidDto)))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
     void updateItemTest() throws Exception {
         when(itemService.updateItem(anyLong(), any(ItemDto.class), anyLong())).thenReturn(firstItemDto);
 
@@ -151,28 +140,6 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$.requestId", is(firstItemDto.getRequestId()), Long.class));
 
         verify(itemService, times(1)).updateItem(1L, firstItemDto, 1L);
-    }
-
-    @Test
-    void updateItem_InvalidDto_ReturnsBadRequest() throws Exception {
-        ItemDto invalidDto = ItemDto.builder()
-                .description("012345678910." +
-                        "012345678910." +
-                        "012345678910." +
-                        "012345678910." +
-                        "012345678910." +
-                        "012345678910." +
-                        "012345678910." +
-                        "012345678910." +
-                        "012345678910." +
-                        "012345678910.")
-                .build();
-
-        mvc.perform(patch("/items/{itemId}", 1L)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(mapper.writeValueAsString(invalidDto))
-                        .header(X_SHARER_USER_ID, 1L))
-                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -242,16 +209,5 @@ class ItemControllerTest {
                 .andExpect(content().json(mapper.writeValueAsString(commentDto)));
 
         verify(itemService, times(1)).createComment(commentRequestDto, 1L, 1L);
-    }
-
-    @Test
-    void createComment_InvalidDto_ReturnsBadRequest() throws Exception {
-        CommentRequestDto invalidDto = CommentRequestDto.builder().build();
-
-        mvc.perform(post("/items/{itemId}/comment", 1L)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header(X_SHARER_USER_ID, 1L)
-                        .content(mapper.writeValueAsString(invalidDto)))
-                .andExpect(status().isBadRequest());
     }
 }

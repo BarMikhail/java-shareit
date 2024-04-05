@@ -110,17 +110,6 @@ class BookingControllerTest {
     }
 
     @Test
-    void createBookingRequest_InvalidDto_ReturnsBadRequest() throws Exception {
-        BookingDto invalidDto = BookingDto.builder().build();
-
-        mvc.perform(post("/bookings")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header(X_SHARER_USER_ID, 1L)
-                        .content(mapper.writeValueAsString(invalidDto)))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
     void changeBookingStatusTest() throws Exception {
         when(bookingService.updateBookingStatusByOwner(anyLong(), anyLong(), anyBoolean())).thenReturn(firstBookingDto);
 

@@ -135,6 +135,8 @@ public class ItemServiceImpl implements ItemService {
             itemDtoBookings.add(itemDtoBooking);
         }
 
+        Collections.sort(itemDtoBookings, Comparator.comparing(ItemDtoBooking::getId));
+
         return itemDtoBookings;
     }
 

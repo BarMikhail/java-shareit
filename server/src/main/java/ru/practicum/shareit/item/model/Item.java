@@ -5,8 +5,6 @@ import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
-//import javax.validation.constraints.NotBlank;
-//import javax.validation.constraints.NotNull;
 
 @Entity
 @Getter
@@ -24,13 +22,10 @@ public class Item {
     @JoinColumn(name = "owner_id")
     private User owner;
 
-//    @NotBlank
     private String description;
 
-//    @NotBlank
     private String name;
 
-//    @NotNull
     private Boolean available;
 
     @ManyToOne(fetch = FetchType.LAZY)

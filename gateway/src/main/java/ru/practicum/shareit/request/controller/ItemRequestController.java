@@ -9,6 +9,8 @@ import ru.practicum.shareit.additionally.Create;
 import ru.practicum.shareit.request.client.ItemRequestClient;
 import ru.practicum.shareit.request.dto.ItemPostDto;
 
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 
 import static ru.practicum.shareit.additionally.Constant.X_SHARER_USER_ID;
 
@@ -29,7 +31,7 @@ public class ItemRequestController {
 
     @GetMapping("/{requestId}")
     public ResponseEntity<Object> getItemRequestById(@PathVariable("requestId") long requestId,
-                                                @RequestHeader(X_SHARER_USER_ID) long userId) {
+                                                     @RequestHeader(X_SHARER_USER_ID) long userId) {
         log.info("Поиск определенного запроса, id  запроса = {}", requestId);
         return itemRequestClient.getItemRequestById(requestId, userId);
     }
@@ -41,9 +43,9 @@ public class ItemRequestController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<Object> getItemRequests(@RequestParam(defaultValue = "0") Integer from,
-                                                   @RequestParam(defaultValue = "10") Integer size,
-                                                   @RequestHeader(X_SHARER_USER_ID) Long userId) {
+    public ResponseEntity<Object> getItemRequests(@PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
+                                                  @Positive @RequestParam(defaultValue = "10") Integer size,
+                                                  @RequestHeader(X_SHARER_USER_ID) Long userId) {
         log.info("Вывод всего");
         return itemRequestClient.getItemRequests(from, size, userId);
     }

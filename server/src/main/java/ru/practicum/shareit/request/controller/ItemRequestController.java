@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.additionally.Create;
 import ru.practicum.shareit.request.dto.ItemPostDto;
 import ru.practicum.shareit.request.dto.ItemRequestDtoOut;
 import ru.practicum.shareit.request.service.ItemRequestService;
@@ -23,7 +22,6 @@ public class ItemRequestController {
 
     @PostMapping
     public ItemRequestDtoOut addItemRequest(@RequestHeader(X_SHARER_USER_ID) long userId,
-//                                            @Validated(Create.class)
                                             @RequestBody ItemPostDto itemPostDto) {
         log.info("Посмотрим какой запрос {}, какой пользователь {}", itemPostDto, userId);
         return itemRequestService.addItemRequest(userId, itemPostDto);

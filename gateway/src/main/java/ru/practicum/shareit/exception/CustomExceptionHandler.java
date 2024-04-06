@@ -12,20 +12,6 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 @RestControllerAdvice
 public class CustomExceptionHandler {
 
-    @ResponseStatus(HttpStatus.CONFLICT)
-    @ExceptionHandler
-    public CustomResponseError handleEmailException(final ExistEmailException e) {
-        log.debug("Получен статус 409 Conflict {}", e.getMessage(), e);
-        return new CustomResponseError(e.getMessage());
-    }
-
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    @ExceptionHandler
-    public CustomResponseError handleOwnerItemException(final NotFoundException e) {
-        log.debug("Получен статус 404 Not Found {}", e.getMessage(), e);
-        return new CustomResponseError(e.getMessage());
-    }
-
     @ExceptionHandler({InvalidDataException.class, MethodArgumentNotValidException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public CustomResponseError handleInvalidDataException(final RuntimeException e) {
